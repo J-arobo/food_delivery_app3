@@ -93,7 +93,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
   }
 }
 
-
+//Searching for food
 class FoodSearchDelegate extends SearchDelegate {
   @override
   String get searchFieldLabel => 'Search food...';
