@@ -37,11 +37,11 @@ This project started as a follow-along tutorial to learn Flutter fundamentals, t
 
 | Home | Food Detail | Cart |
 |---|---|---|
-| ![Home](assets/screenshots/home.png) | ![Food Detail](assets/screenshots/food_detail.png) | ![Cart](assets/screenshots/cart.png) |
+| ![Home](assets/screenshots/home.png) | ![Food Detail](assets/screenshots/food_detail.jpg) | ![Cart](assets/screenshots/cart_history.jpg) |
 
 | Address Picker | Orders | Payment |
 |---|---|---|
-| ![Map](assets/screenshots/map.png) | ![Orders](assets/screenshots/orders.png) | ![Payment](assets/screenshots/payment.png) |
+| ![Map](assets/screenshots/location_picker.jpg) | ![Orders](assets/screenshots/order.jpg) | ![Payment](assets/screenshots/payment_method.jpg) |
 
 ---
 
