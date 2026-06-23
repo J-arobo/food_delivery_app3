@@ -1,4 +1,4 @@
-# DBFood — Food Delivery App
+# Food — Food Delivery App
 
 A full-featured food delivery mobile and web application built with Flutter. Users can browse popular and recommended dishes, manage a cart, pick a delivery address on Google Maps, place orders, and pay through an integrated payment gateway — all with real-time push notifications powered by Firebase.
 
