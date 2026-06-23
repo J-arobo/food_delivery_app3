@@ -14,7 +14,6 @@ import 'package:food_delivery_app/models/products_model.dart';
 import 'package:food_delivery_app/routes/route_helper.dart';
 import 'package:food_delivery_app/utils/app_constants.dart';
 
-
 class MainFoodPage extends StatefulWidget {
   const MainFoodPage({super.key});
 
@@ -22,12 +21,16 @@ class MainFoodPage extends StatefulWidget {
   _MainFoodPageState createState() => _MainFoodPageState();
 }
 
-
-
 class _MainFoodPageState extends State<MainFoodPage> {
   Future<void> _loadResource() async {
     await Get.find<PopularProductController>().getPopularProductList();
     await Get.find<RecommendedProductController>().getRecommendedProductList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadResource();
   }
 
   @override
@@ -99,15 +102,14 @@ class FoodSearchDelegate extends SearchDelegate {
   String get searchFieldLabel => 'Search food...';
 
   @override
-  List<Widget> buildActions(BuildContext context) => [
-    IconButton(icon: const Icon(Icons.clear), onPressed: () => query = '')
-  ];
+  List<Widget> buildActions(BuildContext context) =>
+      [IconButton(icon: const Icon(Icons.clear), onPressed: () => query = '')];
 
   @override
   Widget buildLeading(BuildContext context) => IconButton(
-    icon: const Icon(Icons.arrow_back_ios),
-    onPressed: () => close(context, null),
-  );
+        icon: const Icon(Icons.arrow_back_ios),
+        onPressed: () => close(context, null),
+      );
 
   @override
   Widget buildResults(BuildContext context) => _buildSearchResults(context);
@@ -143,13 +145,15 @@ class FoodSearchDelegate extends SearchDelegate {
         final type = all[index].key;
         return ListTile(
           leading: Container(
-            width: 60, height: 60,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               image: DecorationImage(
                 fit: BoxFit.cover,
                 image: NetworkImage(AppConstants.BASE_URL +
-                    AppConstants.UPLOAD_URL + product.img!),
+                    AppConstants.UPLOAD_URL +
+                    product.img!),
               ),
             ),
           ),
@@ -160,11 +164,13 @@ class FoodSearchDelegate extends SearchDelegate {
             close(context, null);
             if (type == 'popular') {
               final idx = Get.find<PopularProductController>()
-                  .popularProductList.indexOf(product);
+                  .popularProductList
+                  .indexOf(product);
               Get.toNamed(RouteHelper.getPopularFood(idx, 'home'));
             } else {
               final idx = Get.find<RecommendedProductController>()
-                  .recommendedProductList.indexOf(product);
+                  .recommendedProductList
+                  .indexOf(product);
               Get.toNamed(RouteHelper.getRecommendedFood(idx, 'home'));
             }
           },
