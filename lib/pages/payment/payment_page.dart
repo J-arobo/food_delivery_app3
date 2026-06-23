@@ -17,13 +17,16 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   void initState() {
     super.initState();
-    final callbackUrl = Uri.encodeComponent(
-        'https://food-delivery-app-ce205.web.app/order-successful?id=${widget.orderModel.id}');
+    final successUrl = Uri.encodeComponent(
+        'https://food-delivery-app-ce205.web.app/order-successful?id=${widget.orderModel.id}&status=success');
+    final failUrl = Uri.encodeComponent(
+        'https://food-delivery-app-ce205.web.app/order-successful?id=${widget.orderModel.id}&status=failed');
     final paymentUrl = '${AppConstants.BASE_URL}/payment-mobile'
         '?customer_id=${widget.orderModel.userId}'
         '&order_id=${widget.orderModel.id}'
-        '&callback=$callbackUrl';
-    html.window.location.href = paymentUrl;
+        '&callback=$successUrl'
+        '&cancel_url=$failUrl';
+    html.window.location.href = paymentUrl; 
   }
 
   @override
