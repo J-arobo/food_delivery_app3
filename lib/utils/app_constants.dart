@@ -4,7 +4,7 @@ class AppConstants {
 
   //static const String BASE_URL = "http://10.0.2.2:8000/"; shoppingappbackend-production-85e6.up.railway.app
   //static const String BASE_URL = "http://127.0.0.1:8000";
-  static const String BASE_URL = "http://shoppingappbackend-production-85e6.up.railway.app";
+  static const String BASE_URL = "https://shoppingappbackend-production-85e6.up.railway.app";
   //static const String BASE_URL = "http://192.168.100.124";   - This is if i want to run it on my phone or machine
   static const String POPULAR_PRODUCT_URI = "/api/v1/products/popular";
   static const String RECOMMENDED_PRODUCT_URI = "/api/v1/products/recommended";

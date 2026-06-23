@@ -1,1 +1,55 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"food-delivery-app-ce205","appId":"1:269065240089:android:a50b7b475dd3e21ba8b488","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"food-delivery-app-ce205","appId":"1:269065240089:ios:f2d88ef587193aafa8b488","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"food-delivery-app-ce205","appId":"1:269065240089:ios:f2d88ef587193aafa8b488","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"food-delivery-app-ce205","configurations":{"android":"1:269065240089:android:a50b7b475dd3e21ba8b488","ios":"1:269065240089:ios:f2d88ef587193aafa8b488","macos":"1:269065240089:ios:f2d88ef587193aafa8b488","web":"1:269065240089:web:8d3d18bec44d0b90a8b488","windows":"1:269065240089:web:93b1e2a2a8f26bc0a8b488"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "food-delivery-app-ce205",
+          "appId": "1:269065240089:android:a50b7b475dd3e21ba8b488",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "food-delivery-app-ce205",
+          "appId": "1:269065240089:ios:f2d88ef587193aafa8b488",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "food-delivery-app-ce205",
+          "appId": "1:269065240089:ios:f2d88ef587193aafa8b488",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "food-delivery-app-ce205",
+          "configurations": {
+            "android": "1:269065240089:android:a50b7b475dd3e21ba8b488",
+            "ios": "1:269065240089:ios:f2d88ef587193aafa8b488",
+            "macos": "1:269065240089:ios:f2d88ef587193aafa8b488",
+            "web": "1:269065240089:web:8d3d18bec44d0b90a8b488",
+            "windows": "1:269065240089:web:93b1e2a2a8f26bc0a8b488"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
