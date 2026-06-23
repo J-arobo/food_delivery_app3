@@ -42,3 +42,16 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase / Google Services — contain API keys, never commit these
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+
+# Local SDK paths — machine-specific
+android/local.properties
+
+# Android Studio artifacts
+Invalidate
+Run
