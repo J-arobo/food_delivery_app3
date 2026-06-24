@@ -247,13 +247,15 @@ class _MainFoodPageState extends State<MainFoodPage> {
             ]),
           ),
           SizedBox(width: 16),
-          // Search bar
-          Expanded(
+          // Search bar — Flexible(loose) so maxWidth is actually respected
+          Flexible(
+            fit: FlexFit.loose,
             child: GestureDetector(
               onTap: () => showSearch(context: context, delegate: FoodSearchDelegate()),
               child: Container(
+                height: 40,
+                width: double.infinity,
                 constraints: BoxConstraints(maxWidth: 420),
-                margin: EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: Color(0xFFF2F3F5),
                   borderRadius: BorderRadius.circular(24),
@@ -262,12 +264,14 @@ class _MainFoodPageState extends State<MainFoodPage> {
                 child: Row(children: [
                   Icon(Icons.search, size: 16, color: Colors.grey.shade400),
                   SizedBox(width: 8),
-                  Text('Search food, restaurants…', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
+                  Text('Search food, restaurants…',
+                      style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                      overflow: TextOverflow.ellipsis),
                 ]),
               ),
             ),
           ),
-          SizedBox(width: 8),
+          Spacer(),
           // Nav buttons
           _topNavBtn(Icons.home_outlined, 'Home', true),
           _topNavBtn(Icons.shopping_cart_outlined, 'Cart', false),
@@ -283,7 +287,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
       margin: EdgeInsets.only(left: 4),
       child: TextButton.icon(
         onPressed: () {},
-        icon: Icon(icon, size: 15, color: active ? AppColors.mainColor : Colors.grey.shade600),
+        icon: Icon(icon, size: 18, color: active ? AppColors.mainColor : Colors.grey.shade600),
         label: Text(label, style: TextStyle(fontSize: 13, color: active ? AppColors.mainColor : Colors.grey.shade600, fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
         style: TextButton.styleFrom(
           backgroundColor: active ? Color(0xFFE6FAFA) : Colors.transparent,

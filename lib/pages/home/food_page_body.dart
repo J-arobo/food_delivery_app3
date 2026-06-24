@@ -58,7 +58,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeroCarousel(screenWidth),
+        _buildHeroCarousel(),
         SizedBox(height: 16),
         if (!isDesktop) ...[
           _buildCategoryChips(),
@@ -75,30 +75,33 @@ class _FoodPageBodyState extends State<FoodPageBody> {
 
   // ── Hero carousel ──────────────────────────────────────────────────────────
 
-  Widget _buildHeroCarousel(double availableWidth) {
-    final height = (availableWidth * 0.55).clamp(220.0, 340.0);
-    return GetBuilder<PopularProductController>(builder: (ctrl) {
-      if (!ctrl.isloaded) {
+  Widget _buildHeroCarousel() {
+    return LayoutBuilder(builder: (context, constraints) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      final height = screenWidth >= 768 ? 288.0 : 208.0;
+      return GetBuilder<PopularProductController>(builder: (ctrl) {
+        if (!ctrl.isloaded) {
+          return SizedBox(
+            height: height,
+            child: Center(
+                child: CircularProgressIndicator(color: AppColors.mainColor)),
+          );
+        }
+        final count = ctrl.popularProductList.length;
         return SizedBox(
           height: height,
-          child: Center(
-              child: CircularProgressIndicator(color: AppColors.mainColor)),
-        );
-      }
-      final count = ctrl.popularProductList.length;
-      return SizedBox(
-        height: height,
-        child: PageView.builder(
-          controller: _pageController,
-          itemCount: count,
-          itemBuilder: (_, i) => _buildHeroItem(
-            i,
-            ctrl.popularProductList[i],
-            _currPageValue,
-            count,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: count,
+            itemBuilder: (_, i) => _buildHeroItem(
+              i,
+              ctrl.popularProductList[i],
+              _currPageValue,
+              count,
+            ),
           ),
-        ),
-      );
+        );
+      });
     });
   }
 
@@ -324,13 +327,11 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           shrinkWrap: true,
           padding: EdgeInsets.symmetric(horizontal: 16),
           itemCount: ctrl.recommendedProductList.length,
-          separatorBuilder: (_, __) => SizedBox(height: 12),
+          separatorBuilder: (_, __) => SizedBox(height: 16),
           itemBuilder: (_, i) =>
               _buildFoodCard(i, ctrl.recommendedProductList[i]),
         );
       }
-
-      final ratio = cols == 3 ? 0.85 : 1.04;
 
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
@@ -339,9 +340,9 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           shrinkWrap: true,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: cols,
-            childAspectRatio: ratio,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            mainAxisExtent: 290,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
           ),
           itemCount: ctrl.recommendedProductList.length,
           itemBuilder: (_, i) =>
@@ -360,7 +361,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.06),
@@ -377,9 +378,10 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               children: [
                 ClipRRect(
                   borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(12)),
-                  child: AspectRatio(
-                    aspectRatio: 4 / 3,
+                      BorderRadius.vertical(top: Radius.circular(16)),
+                  child: SizedBox(
+                    height: 160,
+                    width: double.infinity,
                     child: Image.network(
                       AppConstants.BASE_URL +
                           AppConstants.UPLOAD_URL +
@@ -434,7 +436,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               ],
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(12, 10, 12, 12),
+              padding: EdgeInsets.fromLTRB(12, 10, 12, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -495,6 +497,26 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                               fontSize: 12,
                               color: Colors.grey.shade700)),
                     ],
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 34,
+                    child: ElevatedButton.icon(
+                      onPressed: () =>
+                          Get.toNamed(RouteHelper.getRecommendedFood(index, "home")),
+                      icon: Icon(Icons.shopping_cart_outlined, size: 13, color: Colors.white),
+                      label: Text('Add to Cart',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.mainColor,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
                   ),
                 ],
               ),
