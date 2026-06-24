@@ -23,14 +23,18 @@ class _FoodPageBodyState extends State<FoodPageBody> {
   double _currPageValue = 0.0;
   int _selectedCategory = 0;
 
-  final _categories = <Map<String, Object>>[
-    {'label': 'All', 'icon': Icons.grid_view_rounded},
-    {'label': 'Trending', 'icon': Icons.local_fire_department_outlined},
-    {'label': 'Healthy', 'icon': Icons.eco_outlined},
-    {'label': 'Breakfast', 'icon': Icons.coffee_outlined},
-    {'label': 'Meat', 'icon': Icons.set_meal_outlined},
-    {'label': 'Seafood', 'icon': Icons.water_outlined},
-    {'label': 'Vegan', 'icon': Icons.spa_outlined},
+  // Parallel lists avoid Object→IconData cast issues
+  static const _categoryLabels = [
+    'All', 'Trending', 'Healthy', 'Breakfast', 'Meat', 'Seafood', 'Vegan'
+  ];
+  static const _categoryIcons = <IconData>[
+    Icons.grid_view_rounded,
+    Icons.local_fire_department_outlined,
+    Icons.eco_outlined,
+    Icons.coffee_outlined,
+    Icons.set_meal_outlined,
+    Icons.water_outlined,
+    Icons.spa_outlined,
   ];
 
   @override
@@ -90,44 +94,25 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               child: CircularProgressIndicator(color: AppColors.mainColor)),
         );
       }
+      final count = ctrl.popularProductList.length;
       return SizedBox(
         height: height,
-        child: Stack(
-          children: [
-            PageView.builder(
-              controller: _pageController,
-              itemCount: ctrl.popularProductList.length,
-              itemBuilder: (_, i) =>
-                  _buildHeroItem(i, ctrl.popularProductList[i]),
-            ),
-            Positioned(
-              bottom: 12,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: DotsIndicator(
-                  dotsCount: ctrl.popularProductList.isEmpty
-                      ? 1
-                      : ctrl.popularProductList.length,
-                  position: _currPageValue,
-                  decorator: DotsDecorator(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    activeColor: Colors.white,
-                    size: Size.square(7),
-                    activeSize: Size(18, 7),
-                    activeShape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4)),
-                  ),
-                ),
-              ),
-            ),
-          ],
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: count,
+          itemBuilder: (_, i) => _buildHeroItem(
+            i,
+            ctrl.popularProductList[i],
+            _currPageValue,
+            count,
+          ),
         ),
       );
     });
   }
 
-  Widget _buildHeroItem(int index, ProductModel product) {
+  Widget _buildHeroItem(
+      int index, ProductModel product, double currPage, int dotsCount) {
     return GestureDetector(
       onTap: () => Get.toNamed(RouteHelper.getPopularFood(index, "home")),
       child: Container(
@@ -185,23 +170,40 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                 ),
               ),
               SizedBox(height: 4),
+              // Stats row with dots pushed to the right end
               Row(
                 children: [
                   Icon(Icons.star, color: Colors.amber, size: 14),
                   SizedBox(width: 4),
                   Text('4.5 (1287)',
-                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      style:
+                          TextStyle(color: Colors.white70, fontSize: 12)),
                   SizedBox(width: 14),
                   Icon(Icons.location_on_outlined,
                       color: Colors.white70, size: 14),
                   SizedBox(width: 4),
                   Text('5.7km',
-                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      style:
+                          TextStyle(color: Colors.white70, fontSize: 12)),
                   SizedBox(width: 14),
                   Icon(Icons.access_time, color: Colors.white70, size: 14),
                   SizedBox(width: 4),
                   Text('30min',
-                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      style:
+                          TextStyle(color: Colors.white70, fontSize: 12)),
+                  Spacer(),
+                  DotsIndicator(
+                    dotsCount: dotsCount < 1 ? 1 : dotsCount,
+                    position: currPage,
+                    decorator: DotsDecorator(
+                      color: Colors.white.withValues(alpha: 0.45),
+                      activeColor: Colors.white,
+                      size: Size.square(6),
+                      activeSize: Size(16, 6),
+                      activeShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3)),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -215,42 +217,44 @@ class _FoodPageBodyState extends State<FoodPageBody> {
 
   Widget _buildCategoryChips() {
     return SizedBox(
-      height: 38,
+      height: 40,
       child: ListView.separated(
         padding: EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
-        itemCount: _categories.length,
+        itemCount: _categoryLabels.length,
         separatorBuilder: (_, __) => SizedBox(width: 8),
         itemBuilder: (_, i) {
           final selected = _selectedCategory == i;
           return GestureDetector(
             onTap: () => setState(() => _selectedCategory = i),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 0),
               decoration: BoxDecoration(
                 color: selected ? AppColors.mainColor : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: selected
-                      ? AppColors.mainColor
-                      : Colors.grey.shade200,
+                  color:
+                      selected ? AppColors.mainColor : Colors.grey.shade200,
                 ),
               ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    _categories[i]['icon'] as IconData,
-                    size: 14,
-                    color: selected ? Colors.white : Colors.grey.shade600,
+                    _categoryIcons[i],
+                    size: 15,
+                    color:
+                        selected ? Colors.white : Colors.grey.shade600,
                   ),
                   SizedBox(width: 6),
                   Text(
-                    _categories[i]['label'] as String,
+                    _categoryLabels[i],
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color:
-                          selected ? Colors.white : Colors.grey.shade700,
+                      color: selected
+                          ? Colors.white
+                          : Colors.grey.shade700,
                     ),
                   ),
                 ],
@@ -331,7 +335,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           return ListView.separated(
             physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
-            padding: EdgeInsets.symmetric(horizontal: Dimensions.width20),
+            padding:
+                EdgeInsets.symmetric(horizontal: Dimensions.width20),
             itemCount: ctrl.recommendedProductList.length,
             separatorBuilder: (_, __) => SizedBox(height: 12),
             itemBuilder: (_, i) =>
@@ -339,14 +344,18 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           );
         }
 
+        // childAspectRatio tuned per column count to eliminate bottom padding
+        final ratio = cols == 2 ? 1.04 : 0.94;
+
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: Dimensions.width20),
+          padding:
+              EdgeInsets.symmetric(horizontal: Dimensions.width20),
           child: GridView.builder(
             physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: cols,
-              childAspectRatio: 0.78,
+              childAspectRatio: ratio,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),
@@ -363,7 +372,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
 
   Widget _buildFoodCard(int index, ProductModel product) {
     return GestureDetector(
-      onTap: () => Get.toNamed(RouteHelper.getRecommendedFood(index, "home")),
+      onTap: () =>
+          Get.toNamed(RouteHelper.getRecommendedFood(index, "home")),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -378,6 +388,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
               children: [
@@ -398,8 +409,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   top: 10,
                   left: 10,
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -440,9 +451,10 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               ],
             ),
             Padding(
-              padding: EdgeInsets.all(12),
+              padding: EdgeInsets.fromLTRB(12, 10, 12, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -468,7 +480,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   ),
                   SizedBox(height: 3),
                   Text(
-                    product.description ?? 'With Chinese characteristics',
+                    product.description ?? 'Freshly prepared',
                     style: TextStyle(
                         color: Colors.grey.shade500, fontSize: 12),
                     maxLines: 1,
@@ -481,21 +493,24 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                       SizedBox(width: 3),
                       Text('${product.stars ?? 4}',
                           style: TextStyle(
-                              fontSize: 12, color: Colors.grey.shade700)),
+                              fontSize: 12,
+                              color: Colors.grey.shade700)),
                       SizedBox(width: 10),
                       Icon(Icons.location_on_outlined,
                           color: AppColors.mainColor, size: 13),
                       SizedBox(width: 3),
                       Text('1.7km',
                           style: TextStyle(
-                              fontSize: 12, color: Colors.grey.shade700)),
+                              fontSize: 12,
+                              color: Colors.grey.shade700)),
                       SizedBox(width: 10),
                       Icon(Icons.access_time,
                           color: Colors.grey.shade400, size: 13),
                       SizedBox(width: 3),
                       Text('22min',
                           style: TextStyle(
-                              fontSize: 12, color: Colors.grey.shade700)),
+                              fontSize: 12,
+                              color: Colors.grey.shade700)),
                     ],
                   ),
                 ],

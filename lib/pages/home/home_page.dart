@@ -42,43 +42,69 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: LayoutBuilder(builder: (context, constraints) {
         final isDesktop = constraints.maxWidth > 700;
 
-        final bar = BottomNavigationBar(
-          selectedItemColor: AppColors.mainColor,
-          unselectedItemColor: Colors.amberAccent,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          selectedFontSize: 0.0,
-          unselectedFontSize: 0.0,
-          backgroundColor: Colors.white,
-          currentIndex: _selectedIndex,
-          onTap: onTapNav,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              label: "home",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.archive),
-              label: "history",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: "cart",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "me",
-            ),
-          ],
-        );
+        const navItems = [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined), label: "home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.archive_outlined), label: "history"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart_outlined), label: "cart"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), label: "me"),
+        ];
 
-        if (!isDesktop) return bar;
+        if (!isDesktop) {
+          return BottomNavigationBar(
+            selectedItemColor: AppColors.mainColor,
+            unselectedItemColor: Colors.grey.shade400,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            selectedFontSize: 0.0,
+            unselectedFontSize: 0.0,
+            backgroundColor: Colors.white,
+            elevation: 8,
+            currentIndex: _selectedIndex,
+            onTap: onTapNav,
+            items: navItems,
+          );
+        }
 
-        return IntrinsicHeight(
-          child: ColoredBox(
-            color: Colors.white,
-            child: Center(
-              child: SizedBox(width: 480, child: bar),
+        // Desktop / tablet: floating pill with rounded top corners
+        return Padding(
+          padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+          child: Container(
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.10),
+                  blurRadius: 20,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: Center(
+                child: SizedBox(
+                  width: 440,
+                  child: BottomNavigationBar(
+                    selectedItemColor: AppColors.mainColor,
+                    unselectedItemColor: Colors.grey.shade400,
+                    showSelectedLabels: false,
+                    showUnselectedLabels: false,
+                    selectedFontSize: 0.0,
+                    unselectedFontSize: 0.0,
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    currentIndex: _selectedIndex,
+                    onTap: onTapNav,
+                    items: navItems,
+                  ),
+                ),
+              ),
             ),
           ),
         );

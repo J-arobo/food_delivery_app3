@@ -25,6 +25,8 @@ class MainFoodPage extends StatefulWidget {
 
 
 class _MainFoodPageState extends State<MainFoodPage> {
+  bool _showBanner = true;
+
   Future<void> _loadResource() async {
     await Get.find<PopularProductController>().getPopularProductList();
     await Get.find<RecommendedProductController>().getRecommendedProductList();
@@ -32,7 +34,6 @@ class _MainFoodPageState extends State<MainFoodPage> {
 
   @override
   Widget build(BuildContext context) {
-    // to check height of deviceprint("current height is "+MediaQuery.of(context).size.height.toString());
     return RefreshIndicator(
         onRefresh: _loadResource,
         child: Column(
@@ -83,6 +84,8 @@ class _MainFoodPageState extends State<MainFoodPage> {
                 ),
               ),
             ),
+            // "under construction" dismissible notice
+            if (_showBanner) _buildBanner(),
             //showing the body
             Expanded(
                 child: SingleChildScrollView(
@@ -90,6 +93,37 @@ class _MainFoodPageState extends State<MainFoodPage> {
             ))
           ],
         ));
+  }
+
+  Widget _buildBanner() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+      color: AppColors.mainColor.withValues(alpha: 0.08),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.construction_outlined,
+              size: 15, color: AppColors.mainColor),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'We\'re still building! Some features may not be fully available yet — check back soon.',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.mainColor,
+                height: 1.4,
+              ),
+            ),
+          ),
+          SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => setState(() => _showBanner = false),
+            child: Icon(Icons.close, size: 15, color: AppColors.mainColor),
+          ),
+        ],
+      ),
+    );
   }
 }
 
