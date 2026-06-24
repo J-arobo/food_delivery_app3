@@ -48,6 +48,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
   @override
   void initState() {
     super.initState();
+    _loadResource();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showConstructionDialog();
     });
