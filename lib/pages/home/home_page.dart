@@ -38,40 +38,49 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // scaffold bcoz we want to have bottom nav bar
       body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: LayoutBuilder(builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth > 700;
+
+        final bar = BottomNavigationBar(
           selectedItemColor: AppColors.mainColor,
           unselectedItemColor: Colors.amberAccent,
           showSelectedLabels: false,
           showUnselectedLabels: false,
           selectedFontSize: 0.0,
           unselectedFontSize: 0.0,
+          backgroundColor: Colors.white,
           currentIndex: _selectedIndex,
           onTap: onTapNav,
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home_outlined,
-              ),
+              icon: Icon(Icons.home_outlined),
               label: "home",
             ),
             BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.archive,
-                ),
-                label: "history"),
+              icon: Icon(Icons.archive),
+              label: "history",
+            ),
             BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.shopping_cart,
-                ),
-                label: "cart"),
+              icon: Icon(Icons.shopping_cart),
+              label: "cart",
+            ),
             BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.person,
-                ),
-                label: "me"),
-          ]),
+              icon: Icon(Icons.person),
+              label: "me",
+            ),
+          ],
+        );
+
+        if (!isDesktop) return bar;
+
+        return Container(
+          color: Colors.white,
+          child: Center(
+            child: SizedBox(width: 480, child: bar),
+          ),
+        );
+      }),
     );
   }
 }

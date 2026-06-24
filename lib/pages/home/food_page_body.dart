@@ -5,17 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:food_delivery_app/controllers/popular_product_controller.dart';
 import 'package:food_delivery_app/controllers/recommeded_product_controller.dart';
 import 'package:food_delivery_app/models/products_model.dart';
-import 'package:food_delivery_app/pages/food/popular_food_detail.dart';
 import 'package:food_delivery_app/routes/route_helper.dart';
 import 'package:food_delivery_app/utils/app_constants.dart';
 import 'package:food_delivery_app/utils/colors.dart';
 import 'package:food_delivery_app/utils/dimensions.dart';
-import 'package:food_delivery_app/widgets/app_column.dart';
-import 'package:food_delivery_app/widgets/big_text.dart';
-import 'package:food_delivery_app/widgets/small_text.dart';
 import 'package:get/get.dart';
-
-// N/B:you are not supposed to call this food page directly, instead call the main one
 
 class FoodPageBody extends StatefulWidget {
   const FoodPageBody({super.key});
@@ -25,228 +19,349 @@ class FoodPageBody extends StatefulWidget {
 }
 
 class _FoodPageBodyState extends State<FoodPageBody> {
-  PageController pageController = PageController(viewportFraction: 0.85);
-  var _currPageValue = 0.0;
-  double _scaleFactor = 0.8;
-  double _height = Dimensions.pageviViewContainer;
+  final _pageController = PageController();
+  double _currPageValue = 0.0;
+  int _selectedCategory = 0;
+
+  final _categories = <Map<String, Object>>[
+    {'label': 'All', 'icon': Icons.grid_view_rounded},
+    {'label': 'Trending', 'icon': Icons.local_fire_department_outlined},
+    {'label': 'Healthy', 'icon': Icons.eco_outlined},
+    {'label': 'Breakfast', 'icon': Icons.coffee_outlined},
+    {'label': 'Meat', 'icon': Icons.set_meal_outlined},
+    {'label': 'Seafood', 'icon': Icons.water_outlined},
+    {'label': 'Vegan', 'icon': Icons.spa_outlined},
+  ];
 
   @override
   void initState() {
     super.initState();
-    pageController.addListener(() {
-      setState(() {
-        _currPageValue = pageController.page!;
-      });
+    _pageController.addListener(() {
+      setState(() => _currPageValue = _pageController.page ?? 0.0);
     });
   }
 
-  // disposing the page (when you leave the page it shouldnt be active)
   @override
   void dispose() {
-    pageController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        //slider section
-        GetBuilder<PopularProductController>(builder: (popularProducts) {
-          return popularProducts.isloaded
-              ? Container(
-                  height: Dimensions.pageView,
-                  child: PageView.builder(
-                      controller: pageController,
-                      itemCount: popularProducts.popularProductList.length,
-                      itemBuilder: (context, position) {
-                        return _buildPageItem(position,
-                            popularProducts.popularProductList[position]);
-                      }),
-                )
-              : CircularProgressIndicator(
-                  color: AppColors.mainColor,
-                );
-          // return statements need a semi-colon at the end
-        }),
-        //Dots_indicator to show a position for a pageview
-        GetBuilder<PopularProductController>(builder: (popularProducts) {
-          return DotsIndicator(
-            dotsCount: popularProducts.popularProductList.isEmpty
-                ? 1
-                : popularProducts.popularProductList.length,
-            position: _currPageValue,
-            decorator: DotsDecorator(
-              activeColor: AppColors.mainColor,
-              size: const Size.square(9.0),
-              activeSize: const Size(18.0, 9.0),
-              activeShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0)),
-            ),
-          );
-        }),
-        //Popular text
-        SizedBox(
-          height: Dimensions.height30,
+    return LayoutBuilder(builder: (context, constraints) {
+      final isDesktop = constraints.maxWidth > 700;
+
+      final column = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeroCarousel(constraints.maxWidth),
+          _buildDotsRow(),
+          SizedBox(height: 16),
+          _buildCategoryChips(),
+          SizedBox(height: 20),
+          _buildRecommendedHeader(),
+          SizedBox(height: 12),
+          _buildRecommendedGrid(),
+          SizedBox(height: 24),
+        ],
+      );
+
+      if (isDesktop) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 900),
+            child: column,
+          ),
+        );
+      }
+      return column;
+    });
+  }
+
+  // ── Hero carousel ──────────────────────────────────────────────────────────
+
+  Widget _buildHeroCarousel(double availableWidth) {
+    final height = (availableWidth * 0.55).clamp(220.0, 340.0);
+    return GetBuilder<PopularProductController>(builder: (ctrl) {
+      if (!ctrl.isloaded) {
+        return SizedBox(
+          height: height,
+          child: Center(
+              child: CircularProgressIndicator(color: AppColors.mainColor)),
+        );
+      }
+      return SizedBox(
+        height: height,
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: ctrl.popularProductList.length,
+          itemBuilder: (_, i) =>
+              _buildHeroItem(i, ctrl.popularProductList[i]),
         ),
-        Container(
-          margin: EdgeInsets.only(left: Dimensions.width30),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+      );
+    });
+  }
+
+  Widget _buildHeroItem(int index, ProductModel product) {
+    return GestureDetector(
+      onTap: () => Get.toNamed(RouteHelper.getPopularFood(index, "home")),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: NetworkImage(
+              AppConstants.BASE_URL + AppConstants.UPLOAD_URL + product.img!,
+            ),
+          ),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.black.withValues(alpha: 0.78)
+              ],
+              stops: [0.35, 1.0],
+            ),
+          ),
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              BigText(text: "Recommended"),
-              SizedBox(
-                width: Dimensions.width10,
-              ),
               Container(
-                margin: const EdgeInsets.only(bottom: 3),
-                child: BigText(
-                  text: ".",
-                  color: Colors.black26,
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.mainColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'POPULAR',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
-              SizedBox(
-                width: Dimensions.width10,
-              ),
-              Container(
-                margin: const EdgeInsets.only(bottom: 2),
-                child: SmallText(
-                  text: "Food pairing",
+              SizedBox(height: 6),
+              Text(
+                product.name!,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.star, color: Colors.amber, size: 14),
+                  SizedBox(width: 4),
+                  Text('4.5 (1287)',
+                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  SizedBox(width: 14),
+                  Icon(Icons.location_on_outlined,
+                      color: Colors.white70, size: 14),
+                  SizedBox(width: 4),
+                  Text('5.7km',
+                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  SizedBox(width: 14),
+                  Icon(Icons.access_time, color: Colors.white70, size: 14),
+                  SizedBox(width: 4),
+                  Text('30min',
+                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                ],
               ),
             ],
           ),
         ),
-        //recommended food grid
-        GetBuilder<RecommendedProductController>(builder: (recommendedProduct) {
-          if (!recommendedProduct.isloaded) {
-            return Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: CircularProgressIndicator(color: AppColors.mainColor),
-              ),
-            );
-          }
-          return LayoutBuilder(builder: (context, constraints) {
-            final cols = constraints.maxWidth > 900
-                ? 3
-                : constraints.maxWidth > 560
-                    ? 2
-                    : 1;
-
-            if (cols == 1) {
-              return ListView.separated(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                padding: EdgeInsets.symmetric(horizontal: Dimensions.width20),
-                itemCount: recommendedProduct.recommendedProductList.length,
-                separatorBuilder: (_, __) => SizedBox(height: 12),
-                itemBuilder: (_, index) => _buildFoodCard(
-                    index, recommendedProduct.recommendedProductList[index]),
-              );
-            }
-
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: Dimensions.width20),
-              child: GridView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: cols,
-                  childAspectRatio: 0.78,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                itemCount: recommendedProduct.recommendedProductList.length,
-                itemBuilder: (_, index) => _buildFoodCard(
-                    index, recommendedProduct.recommendedProductList[index]),
-              ),
-            );
-          });
-        })
-      ],
+      ),
     );
   }
 
-  Widget _buildPageItem(int index, ProductModel popularProduct) {
-    // using Matrix4 API from flutter (It has 3 coordinates: X,Y & Z)
-    Matrix4 matrix = new Matrix4.identity();
-    if (index == _currPageValue.floor()) {
-      var currScale = 1 - (_currPageValue - index) * (1 - _scaleFactor);
-      var currTrans = _height * (1 - currScale) / 2;
-      matrix = Matrix4.diagonal3Values(1, currScale, 1)
-        ..setTranslationRaw(0, currTrans, 0);
-    } else if (index == _currPageValue.floor() + 1) {
-      var currScale =
-          _scaleFactor + (_currPageValue - index + 1) * (1 - _scaleFactor);
-      var currTrans = _height * (1 - currScale) / 2;
-      matrix = Matrix4.diagonal3Values(1, currScale, 1);
-      matrix = Matrix4.diagonal3Values(1, currScale, 1)
-        ..setTranslationRaw(0, currTrans, 0);
-    } else if (index == _currPageValue.floor() - 1) {
-      var currScale = 1 - (_currPageValue - index) * (1 - _scaleFactor);
-      var currTrans = _height * (1 - currScale) / 2;
-      matrix = Matrix4.diagonal3Values(1, currScale, 1);
-      matrix = Matrix4.diagonal3Values(1, currScale, 1)
-        ..setTranslationRaw(0, currTrans, 0);
-    } else {
-      var currScale = 0.8;
-      matrix = Matrix4.diagonal3Values(1, currScale, 1)
-        ..setTranslationRaw(0, _height * (1 - _scaleFactor) / 2, 1);
-    }
+  // ── Dots ───────────────────────────────────────────────────────────────────
 
-    return Transform(
-      transform: matrix,
-      child: Stack(
-        children: [
-          GestureDetector(
-            onTap: () {
-              Get.toNamed(RouteHelper.getPopularFood(index, "home"));
-            },
-            child: Container(
-              height: Dimensions.pageviViewContainer,
-              margin: EdgeInsets.only(
-                  left: Dimensions.width10, right: Dimensions.width10),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radius30),
-                  color: index.isEven ? Color(0xFF69c5df) : Color(0xFF9294cc),
-                  image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(AppConstants.BASE_URL +
-                          AppConstants.UPLOAD_URL +
-                          popularProduct.img!))),
+  Widget _buildDotsRow() {
+    return GetBuilder<PopularProductController>(builder: (ctrl) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: DotsIndicator(
+            dotsCount: ctrl.popularProductList.isEmpty
+                ? 1
+                : ctrl.popularProductList.length,
+            position: _currPageValue,
+            decorator: DotsDecorator(
+              color: Colors.grey.shade300,
+              activeColor: AppColors.mainColor,
+              size: Size.square(8),
+              activeSize: Size(20, 8),
+              activeShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4)),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
+        ),
+      );
+    });
+  }
+
+  // ── Category chips ─────────────────────────────────────────────────────────
+
+  Widget _buildCategoryChips() {
+    return SizedBox(
+      height: 38,
+      child: ListView.separated(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: _categories.length,
+        separatorBuilder: (_, __) => SizedBox(width: 8),
+        itemBuilder: (_, i) {
+          final selected = _selectedCategory == i;
+          return GestureDetector(
+            onTap: () => setState(() => _selectedCategory = i),
             child: Container(
-                height: Dimensions.pageViewTextContainer,
-                margin: EdgeInsets.only(
-                    left: Dimensions.width30,
-                    right: Dimensions.width30,
-                    bottom: Dimensions.height30),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(Dimensions.radius20),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                          color: Color(0xFFe8e8e8),
-                          blurRadius: 5.0,
-                          offset: Offset(0, 5)),
-                      BoxShadow(color: Colors.white, offset: Offset(-5, 0)),
-                      BoxShadow(color: Colors.white, offset: Offset(5, 0))
-                    ]),
-                child: Container(
-                    padding: EdgeInsets.only(
-                        top: Dimensions.height15, left: 15, right: 15),
-                    child: AppColumn(
-                      text: popularProduct.name!,
-                    ))),
-          )
+              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: selected ? AppColors.mainColor : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: selected
+                      ? AppColors.mainColor
+                      : Colors.grey.shade200,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _categories[i]['icon'] as IconData,
+                    size: 14,
+                    color: selected ? Colors.white : Colors.grey.shade600,
+                  ),
+                  SizedBox(width: 6),
+                  Text(
+                    _categories[i]['label'] as String,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color:
+                          selected ? Colors.white : Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ── Recommended header ─────────────────────────────────────────────────────
+
+  Widget _buildRecommendedHeader() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Recommended',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              Text(
+                'Food pairing',
+                style:
+                    TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.tune, size: 16, color: AppColors.mainColor),
+              SizedBox(width: 4),
+              Text(
+                'Filter',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.mainColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
+
+  // ── Recommended grid ───────────────────────────────────────────────────────
+
+  Widget _buildRecommendedGrid() {
+    return GetBuilder<RecommendedProductController>(builder: (ctrl) {
+      if (!ctrl.isloaded) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: CircularProgressIndicator(color: AppColors.mainColor),
+          ),
+        );
+      }
+      return LayoutBuilder(builder: (context, constraints) {
+        final cols = constraints.maxWidth > 900
+            ? 3
+            : constraints.maxWidth > 560
+                ? 2
+                : 1;
+
+        if (cols == 1) {
+          return ListView.separated(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            padding: EdgeInsets.symmetric(horizontal: Dimensions.width20),
+            itemCount: ctrl.recommendedProductList.length,
+            separatorBuilder: (_, __) => SizedBox(height: 12),
+            itemBuilder: (_, i) =>
+                _buildFoodCard(i, ctrl.recommendedProductList[i]),
+          );
+        }
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: Dimensions.width20),
+          child: GridView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: cols,
+              childAspectRatio: 0.78,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
+            itemCount: ctrl.recommendedProductList.length,
+            itemBuilder: (_, i) =>
+                _buildFoodCard(i, ctrl.recommendedProductList[i]),
+          ),
+        );
+      });
+    });
+  }
+
+  // ── Food card ──────────────────────────────────────────────────────────────
 
   Widget _buildFoodCard(int index, ProductModel product) {
     return GestureDetector(
@@ -269,7 +384,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(12)),
                   child: AspectRatio(
                     aspectRatio: 4 / 3,
                     child: Image.network(
@@ -284,7 +400,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   top: 10,
                   left: 10,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -297,7 +414,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                     ),
                     child: Text(
                       'Normal',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                          fontSize: 11, fontWeight: FontWeight.w500),
                     ),
                   ),
                 ),
@@ -353,7 +471,8 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   SizedBox(height: 3),
                   Text(
                     product.description ?? 'With Chinese characteristics',
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                    style: TextStyle(
+                        color: Colors.grey.shade500, fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
