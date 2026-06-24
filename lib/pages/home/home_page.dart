@@ -1,4 +1,3 @@
-import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/controllers/order_controller.dart';
 import 'package:food_delivery_app/pages/account/acccount_page.dart';
@@ -17,103 +16,49 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  List pages = [
+
+  final List pages = [
     MainFoodPage(),
     OrderPage(),
     CartHistory(),
     AccountPage(),
   ];
 
+  static const _navItems = [
+    BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "home"),
+    BottomNavigationBarItem(icon: Icon(Icons.archive_outlined), label: "history"),
+    BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: "cart"),
+    BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "me"),
+  ];
+
   void onTapNav(int index) {
-    setState(() {
-      // to trigger UI change
-      _selectedIndex = index;
-    });
-    if (index == 1) {
-      Get.find<OrderController>().getOrderList();
-    }
+    setState(() => _selectedIndex = index);
+    if (index == 1) Get.find<OrderController>().getOrderList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = MediaQuery.of(context).size.width > 900;
+
     return Scaffold(
       body: pages[_selectedIndex],
-      bottomNavigationBar: LayoutBuilder(builder: (context, constraints) {
-        final isDesktop = constraints.maxWidth > 700;
-
-        const navItems = [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined), label: "home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.archive_outlined), label: "history"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart_outlined), label: "cart"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline), label: "me"),
-        ];
-
-        if (!isDesktop) {
-          return BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: AppColors.mainColor,
-            unselectedItemColor: Colors.grey.shade400,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            selectedFontSize: 0.0,
-            unselectedFontSize: 0.0,
-            backgroundColor: Colors.white,
-            elevation: 8,
-            currentIndex: _selectedIndex,
-            onTap: onTapNav,
-            items: navItems,
-          );
-        }
-
-        // Desktop / tablet: floating pill with explicit height so Scaffold sizes body correctly
-        return SizedBox(
-          height: 64,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(30),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                  child: Container(
-                    height: 56,
-                    width: 300,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.70),
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: BottomNavigationBar(
-                      type: BottomNavigationBarType.fixed,
-                      selectedItemColor: AppColors.mainColor,
-                      unselectedItemColor: Colors.grey.shade400,
-                      showSelectedLabels: false,
-                      showUnselectedLabels: false,
-                      selectedFontSize: 0.0,
-                      unselectedFontSize: 0.0,
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      currentIndex: _selectedIndex,
-                      onTap: onTapNav,
-                      items: navItems,
-                    ),
-                  ),
-                ),
-              ),
+      // On desktop the top nav inside MainFoodPage handles navigation
+      bottomNavigationBar: isDesktop
+          ? null
+          : BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              selectedItemColor: AppColors.mainColor,
+              unselectedItemColor: Colors.grey.shade400,
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              selectedFontSize: 0.0,
+              unselectedFontSize: 0.0,
+              backgroundColor: Colors.white,
+              elevation: 8,
+              currentIndex: _selectedIndex,
+              onTap: onTapNav,
+              items: _navItems,
             ),
-          ),
-        );
-      }),
     );
   }
 }

@@ -171,20 +171,24 @@ class _MainFoodPageState extends State<MainFoodPage> {
         onRefresh: _loadResource,
         child: Column(
           children: [
-            header,
+            _buildDesktopTopNav(context),
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Left sidebar
                   SizedBox(
                     width: 220,
                     child: SingleChildScrollView(
                       child: _buildDesktopSidebar(),
                     ),
                   ),
+                  // Center content
                   Expanded(
                     child: SingleChildScrollView(child: FoodPageBody()),
                   ),
+                  // Right panel (placeholder — edit later)
+                  _buildRightPanel(),
                 ],
               ),
             ),
@@ -200,6 +204,146 @@ class _MainFoodPageState extends State<MainFoodPage> {
           header,
           Expanded(
             child: SingleChildScrollView(child: FoodPageBody()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopTopNav(BuildContext context) {
+    return Container(
+      height: 64,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        children: [
+          // Logo
+          Text(
+            'katqa',
+            style: TextStyle(
+              color: AppColors.mainColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              letterSpacing: -0.5,
+            ),
+          ),
+          SizedBox(width: 20),
+          // Location chip
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade200),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(Icons.location_on, size: 13, color: AppColors.mainColor),
+              SizedBox(width: 4),
+              Text('Nairobi', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey.shade700)),
+              SizedBox(width: 2),
+              Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey.shade500),
+            ]),
+          ),
+          SizedBox(width: 16),
+          // Search bar
+          Expanded(
+            child: GestureDetector(
+              onTap: () => showSearch(context: context, delegate: FoodSearchDelegate()),
+              child: Container(
+                constraints: BoxConstraints(maxWidth: 420),
+                margin: EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Color(0xFFF2F3F5),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Row(children: [
+                  Icon(Icons.search, size: 16, color: Colors.grey.shade400),
+                  SizedBox(width: 8),
+                  Text('Search food, restaurants…', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
+                ]),
+              ),
+            ),
+          ),
+          SizedBox(width: 8),
+          // Nav buttons
+          _topNavBtn(Icons.home_outlined, 'Home', true),
+          _topNavBtn(Icons.shopping_cart_outlined, 'Cart', false),
+          _topNavBtn(Icons.favorite_border, 'Saved', false),
+          _topNavBtn(Icons.person_outline, 'Profile', false),
+        ],
+      ),
+    );
+  }
+
+  Widget _topNavBtn(IconData icon, String label, bool active) {
+    return Container(
+      margin: EdgeInsets.only(left: 4),
+      child: TextButton.icon(
+        onPressed: () {},
+        icon: Icon(icon, size: 15, color: active ? AppColors.mainColor : Colors.grey.shade600),
+        label: Text(label, style: TextStyle(fontSize: 13, color: active ? AppColors.mainColor : Colors.grey.shade600, fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
+        style: TextButton.styleFrom(
+          backgroundColor: active ? Color(0xFFE6FAFA) : Colors.transparent,
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRightPanel() {
+    return Container(
+      width: 280,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(left: BorderSide(color: Colors.grey.shade100)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+            child: Text(
+              'YOUR ORDER',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade400,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Color(0xFFE6FAFA),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(Icons.shopping_cart_outlined, color: AppColors.mainColor, size: 24),
+                  ),
+                  SizedBox(height: 12),
+                  Text('Cart is empty', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+                  SizedBox(height: 4),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'Add items from the menu\nto get started',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade400, height: 1.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
