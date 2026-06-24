@@ -75,12 +75,6 @@ class MyApp extends StatelessWidget {
             primaryColor: AppColors.mainColor,
             fontFamily: "Lato",
           ),
-          builder: (context, child) => Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: child ?? const SizedBox.shrink(),
-            ),
-          ),
         );
       });
     });
