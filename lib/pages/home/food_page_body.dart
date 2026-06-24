@@ -56,7 +56,6 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeroCarousel(constraints.maxWidth),
-          _buildDotsRow(),
           SizedBox(height: 16),
           _buildCategoryChips(),
           SizedBox(height: 20),
@@ -93,11 +92,36 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       }
       return SizedBox(
         height: height,
-        child: PageView.builder(
-          controller: _pageController,
-          itemCount: ctrl.popularProductList.length,
-          itemBuilder: (_, i) =>
-              _buildHeroItem(i, ctrl.popularProductList[i]),
+        child: Stack(
+          children: [
+            PageView.builder(
+              controller: _pageController,
+              itemCount: ctrl.popularProductList.length,
+              itemBuilder: (_, i) =>
+                  _buildHeroItem(i, ctrl.popularProductList[i]),
+            ),
+            Positioned(
+              bottom: 12,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: DotsIndicator(
+                  dotsCount: ctrl.popularProductList.isEmpty
+                      ? 1
+                      : ctrl.popularProductList.length,
+                  position: _currPageValue,
+                  decorator: DotsDecorator(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    activeColor: Colors.white,
+                    size: Size.square(7),
+                    activeSize: Size(18, 7),
+                    activeShape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4)),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       );
     });
@@ -185,32 +209,6 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         ),
       ),
     );
-  }
-
-  // ── Dots ───────────────────────────────────────────────────────────────────
-
-  Widget _buildDotsRow() {
-    return GetBuilder<PopularProductController>(builder: (ctrl) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.only(top: 10),
-          child: DotsIndicator(
-            dotsCount: ctrl.popularProductList.isEmpty
-                ? 1
-                : ctrl.popularProductList.length,
-            position: _currPageValue,
-            decorator: DotsDecorator(
-              color: Colors.grey.shade300,
-              activeColor: AppColors.mainColor,
-              size: Size.square(8),
-              activeSize: Size(20, 8),
-              activeShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4)),
-            ),
-          ),
-        ),
-      );
-    });
   }
 
   // ── Category chips ─────────────────────────────────────────────────────────

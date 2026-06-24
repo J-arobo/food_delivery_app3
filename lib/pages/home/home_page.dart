@@ -74,10 +74,12 @@ class _HomePageState extends State<HomePage> {
 
         if (!isDesktop) return bar;
 
-        return Container(
-          color: Colors.white,
-          child: Center(
-            child: SizedBox(width: 480, child: bar),
+        return IntrinsicHeight(
+          child: ColoredBox(
+            color: Colors.white,
+            child: Center(
+              child: SizedBox(width: 480, child: bar),
+            ),
           ),
         );
       }),
