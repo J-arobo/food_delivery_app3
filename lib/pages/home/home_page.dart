@@ -35,43 +35,69 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Widget _navItem(int index, IconData icon, String label) {
+    final selected = _selectedIndex == index;
+    final color = selected ? AppColors.mainColor : Colors.amberAccent;
+    return TextButton.icon(
+      onPressed: () => onTapNav(index),
+      icon: Icon(icon, color: color),
+      label: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // scaffold bcoz we want to have bottom nav bar
-      body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: AppColors.mainColor,
-          unselectedItemColor: Colors.amberAccent,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          selectedFontSize: 0.0,
-          unselectedFontSize: 0.0,
-          currentIndex: _selectedIndex,
-          onTap: onTapNav,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home_outlined,
-              ),
-              label: "home",
+    return LayoutBuilder(builder: (context, constraints) {
+      final isDesktop = constraints.maxWidth > 700;
+
+      if (isDesktop) {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 1,
+            automaticallyImplyLeading: false,
+            title: Row(
+              children: [
+                _navItem(0, Icons.home_outlined, 'Home'),
+                _navItem(1, Icons.archive, 'Orders'),
+                _navItem(2, Icons.shopping_cart, 'Cart'),
+                _navItem(3, Icons.person, 'Account'),
+              ],
             ),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.archive,
-                ),
-                label: "history"),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.shopping_cart,
-                ),
-                label: "cart"),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.person,
-                ),
-                label: "me"),
-          ]),
-    );
+          ),
+          body: pages[_selectedIndex],
+        );
+      }
+
+      return Scaffold(
+        body: pages[_selectedIndex],
+        bottomNavigationBar: BottomNavigationBar(
+            selectedItemColor: AppColors.mainColor,
+            unselectedItemColor: Colors.amberAccent,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            selectedFontSize: 0.0,
+            unselectedFontSize: 0.0,
+            currentIndex: _selectedIndex,
+            onTap: onTapNav,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                label: "home",
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.archive), label: "history"),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.shopping_cart), label: "cart"),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: "me"),
+            ]),
+      );
+    });
   }
 }
