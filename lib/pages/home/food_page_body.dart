@@ -8,7 +8,6 @@ import 'package:food_delivery_app/models/products_model.dart';
 import 'package:food_delivery_app/routes/route_helper.dart';
 import 'package:food_delivery_app/utils/app_constants.dart';
 import 'package:food_delivery_app/utils/colors.dart';
-import 'package:food_delivery_app/utils/dimensions.dart';
 import 'package:get/get.dart';
 
 class FoodPageBody extends StatefulWidget {
@@ -53,33 +52,25 @@ class _FoodPageBodyState extends State<FoodPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final isDesktop = constraints.maxWidth > 700;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 900;
 
-      final column = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeroCarousel(constraints.maxWidth),
-          SizedBox(height: 16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeroCarousel(screenWidth),
+        SizedBox(height: 16),
+        if (!isDesktop) ...[
           _buildCategoryChips(),
           SizedBox(height: 20),
-          _buildRecommendedHeader(),
-          SizedBox(height: 12),
-          _buildRecommendedGrid(),
-          SizedBox(height: 24),
-        ],
-      );
-
-      if (isDesktop) {
-        return Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 900),
-            child: column,
-          ),
-        );
-      }
-      return column;
-    });
+        ] else
+          SizedBox(height: 8),
+        _buildRecommendedHeader(),
+        SizedBox(height: 12),
+        _buildRecommendedGrid(screenWidth),
+        SizedBox(height: 24),
+      ],
+    );
   }
 
   // ── Hero carousel ──────────────────────────────────────────────────────────
@@ -314,7 +305,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
 
   // ── Recommended grid ───────────────────────────────────────────────────────
 
-  Widget _buildRecommendedGrid() {
+  Widget _buildRecommendedGrid(double screenWidth) {
     return GetBuilder<RecommendedProductController>(builder: (ctrl) {
       if (!ctrl.isloaded) {
         return Center(
@@ -324,47 +315,39 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           ),
         );
       }
-      return LayoutBuilder(builder: (context, constraints) {
-        final cols = constraints.maxWidth > 900
-            ? 3
-            : constraints.maxWidth > 560
-                ? 2
-                : 1;
 
-        if (cols == 1) {
-          return ListView.separated(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            padding:
-                EdgeInsets.symmetric(horizontal: Dimensions.width20),
-            itemCount: ctrl.recommendedProductList.length,
-            separatorBuilder: (_, __) => SizedBox(height: 12),
-            itemBuilder: (_, i) =>
-                _buildFoodCard(i, ctrl.recommendedProductList[i]),
-          );
-        }
+      final cols = screenWidth > 900 ? 3 : screenWidth > 600 ? 2 : 1;
 
-        // childAspectRatio tuned per column count to eliminate bottom padding
-        final ratio = cols == 2 ? 1.04 : 0.94;
-
-        return Padding(
-          padding:
-              EdgeInsets.symmetric(horizontal: Dimensions.width20),
-          child: GridView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: cols,
-              childAspectRatio: ratio,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: ctrl.recommendedProductList.length,
-            itemBuilder: (_, i) =>
-                _buildFoodCard(i, ctrl.recommendedProductList[i]),
-          ),
+      if (cols == 1) {
+        return ListView.separated(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          itemCount: ctrl.recommendedProductList.length,
+          separatorBuilder: (_, __) => SizedBox(height: 12),
+          itemBuilder: (_, i) =>
+              _buildFoodCard(i, ctrl.recommendedProductList[i]),
         );
-      });
+      }
+
+      final ratio = cols == 3 ? 0.85 : 1.04;
+
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: GridView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: cols,
+            childAspectRatio: ratio,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: ctrl.recommendedProductList.length,
+          itemBuilder: (_, i) =>
+              _buildFoodCard(i, ctrl.recommendedProductList[i]),
+        ),
+      );
     });
   }
 

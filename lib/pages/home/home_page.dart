@@ -1,8 +1,7 @@
+import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/controllers/order_controller.dart';
 import 'package:food_delivery_app/pages/account/acccount_page.dart';
-import 'package:food_delivery_app/pages/auth/sign_in_page.dart';
-import 'package:food_delivery_app/pages/auth/sign_up_page.dart';
 import 'package:food_delivery_app/pages/cart/cart_history.dart';
 import 'package:food_delivery_app/pages/home/main_food_page.dart';
 import 'package:food_delivery_app/pages/order/order_page.dart';
@@ -72,25 +71,26 @@ class _HomePageState extends State<HomePage> {
 
         // Desktop / tablet: floating pill
         return Padding(
-          padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
-          child: Container(
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.10),
-                  blurRadius: 20,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+          child: Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(30),
-              child: Center(
-                child: SizedBox(
-                  width: 440,
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: Container(
+                  height: 56,
+                  width: 300,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.70),
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 16,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: BottomNavigationBar(
                     type: BottomNavigationBarType.fixed,
                     selectedItemColor: AppColors.mainColor,

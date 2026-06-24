@@ -25,6 +25,21 @@ class MainFoodPage extends StatefulWidget {
 
 
 class _MainFoodPageState extends State<MainFoodPage> {
+  int _selectedSidebarCategory = 0;
+
+  static const _categoryLabels = [
+    'All', 'Trending', 'Healthy', 'Breakfast', 'Meat', 'Seafood', 'Vegan',
+  ];
+  static const _categoryIcons = <IconData>[
+    Icons.grid_view_rounded,
+    Icons.local_fire_department_outlined,
+    Icons.eco_outlined,
+    Icons.coffee_outlined,
+    Icons.set_meal_outlined,
+    Icons.water_outlined,
+    Icons.spa_outlined,
+  ];
+
   Future<void> _loadResource() async {
     await Get.find<PopularProductController>().getPopularProductList();
     await Get.find<RecommendedProductController>().getRecommendedProductList();
@@ -107,61 +122,143 @@ class _MainFoodPageState extends State<MainFoodPage> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 900;
+
+    final header = Container(
+      margin: EdgeInsets.only(
+          top: Dimensions.height45, bottom: Dimensions.height15),
+      padding: EdgeInsets.only(
+          left: Dimensions.width20, right: Dimensions.width20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            children: [
+              BigText(text: "Kenya", color: AppColors.mainColor),
+              Row(
+                children: [
+                  SmallText(text: "Nairobi", color: Colors.black54),
+                  Icon(Icons.arrow_drop_down_rounded)
+                ],
+              )
+            ],
+          ),
+          GestureDetector(
+            onTap: () {
+              showSearch(context: context, delegate: FoodSearchDelegate());
+            },
+            child: Center(
+              child: Container(
+                width: Dimensions.height45,
+                height: Dimensions.height45,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(Dimensions.radius15),
+                  color: AppColors.mainColor,
+                ),
+                child: Icon(Icons.search,
+                    color: Colors.white, size: Dimensions.iconSize24),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (isDesktop) {
+      return RefreshIndicator(
         onRefresh: _loadResource,
         child: Column(
           children: [
-            //showing the header
-            Container(
-              margin: EdgeInsets.only(
-                  top: Dimensions.height45, bottom: Dimensions.height15),
-              padding: EdgeInsets.only(
-                  left: Dimensions.width20, right: Dimensions.width20),
+            header,
+            Expanded(
               child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      children: [
-                        BigText(text: "Kenya", color: AppColors.mainColor),
-                        Row(
-                          children: [
-                            SmallText(text: "Nairobi", color: Colors.black54),
-                            Icon(Icons.arrow_drop_down_rounded)
-                          ],
-                        )
-                      ],
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 220,
+                    child: SingleChildScrollView(
+                      child: _buildDesktopSidebar(),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        showSearch(
-                          context: context,
-                          delegate: FoodSearchDelegate(),
-                        );
-                      },
-                      child: Center(
-                        child: Container(
-                          width: Dimensions.height45,
-                          height: Dimensions.height45,
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.circular(Dimensions.radius15),
-                            color: AppColors.mainColor,
-                          ),
-                          child: Icon(Icons.search,
-                              color: Colors.white, size: Dimensions.iconSize24),
-                        ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(child: FoodPageBody()),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadResource,
+      child: Column(
+        children: [
+          header,
+          Expanded(
+            child: SingleChildScrollView(child: FoodPageBody()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopSidebar() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 8, 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'CATEGORIES',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey.shade500,
+              letterSpacing: 1.2,
+            ),
+          ),
+          SizedBox(height: 12),
+          ..._categoryLabels.asMap().entries.map((e) {
+            final i = e.key;
+            final selected = _selectedSidebarCategory == i;
+            return GestureDetector(
+              onTap: () => setState(() => _selectedSidebarCategory = i),
+              child: Container(
+                margin: EdgeInsets.only(bottom: 4),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? AppColors.mainColor.withValues(alpha: 0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _categoryIcons[i],
+                      size: 18,
+                      color: selected ? AppColors.mainColor : Colors.grey.shade600,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      _categoryLabels[i],
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                        color: selected ? AppColors.mainColor : Colors.grey.shade700,
                       ),
                     ),
                   ],
                 ),
               ),
-            //showing the body
-            Expanded(
-                child: SingleChildScrollView(
-              child: FoodPageBody(),
-            ))
-          ],
-        ));
+            );
+          }),
+        ],
+      ),
+    );
   }
 }
 
