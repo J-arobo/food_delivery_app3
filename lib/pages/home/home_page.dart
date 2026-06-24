@@ -69,41 +69,44 @@ class _HomePageState extends State<HomePage> {
           );
         }
 
-        // Desktop / tablet: floating pill
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+        // Desktop / tablet: floating pill with explicit height so Scaffold sizes body correctly
+        return SizedBox(
+          height: 64,
           child: Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                child: Container(
-                  height: 56,
-                  width: 300,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.70),
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 16,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: BottomNavigationBar(
-                    type: BottomNavigationBarType.fixed,
-                    selectedItemColor: AppColors.mainColor,
-                    unselectedItemColor: Colors.grey.shade400,
-                    showSelectedLabels: false,
-                    showUnselectedLabels: false,
-                    selectedFontSize: 0.0,
-                    unselectedFontSize: 0.0,
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    currentIndex: _selectedIndex,
-                    onTap: onTapNav,
-                    items: navItems,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  child: Container(
+                    height: 56,
+                    width: 300,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.70),
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: BottomNavigationBar(
+                      type: BottomNavigationBarType.fixed,
+                      selectedItemColor: AppColors.mainColor,
+                      unselectedItemColor: Colors.grey.shade400,
+                      showSelectedLabels: false,
+                      showUnselectedLabels: false,
+                      selectedFontSize: 0.0,
+                      unselectedFontSize: 0.0,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      currentIndex: _selectedIndex,
+                      onTap: onTapNav,
+                      items: navItems,
+                    ),
                   ),
                 ),
               ),
