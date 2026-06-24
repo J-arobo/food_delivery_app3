@@ -42,9 +42,9 @@ class Dimensions {
   static double iconSize24 = screenHeight / 35.17;
   static double iconSize16 = screenHeight / 52.75;
 
-  //List view size — clamp to mobile reference width so items don't blow up on desktop
-  static double listViewImgSize = screenWidth.clamp(0.0, 390.0) / 3.25;
-  static double listViewTextContSize = screenWidth.clamp(0.0, 390.0) / 3.9;
+  //List view size  390/120=3.25
+  static double listViewImgSize = screenWidth / 3.25;
+  static double listViewTextContSize = screenWidth / 3.9;
 
   //popular food screenheight/350=2.41
   static double popularFoodImgSize = screenHeight / 2.41;
