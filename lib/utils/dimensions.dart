@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
+import 'dart:math';
 
 class Dimensions {
-  static double screenHeight = Get.context!.height;
-  static double screenWidth = Get.context!.width;
+  static double screenHeight = min(Get.context!.height, 844.0);
+  static double screenWidth = min(Get.context!.width, 430.0);
+
 
   // Getting the scalling factor
   // the height 844 is for iphone 12pro
