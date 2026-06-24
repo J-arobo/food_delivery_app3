@@ -25,11 +25,84 @@ class MainFoodPage extends StatefulWidget {
 
 
 class _MainFoodPageState extends State<MainFoodPage> {
-  bool _showBanner = true;
-
   Future<void> _loadResource() async {
     await Get.find<PopularProductController>().getPopularProductList();
     await Get.find<RecommendedProductController>().getRecommendedProductList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showConstructionDialog();
+    });
+  }
+
+  void _showConstructionDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: 300,
+          height: 300,
+          decoration: BoxDecoration(
+            color: const Color(0xFF00695C),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.construction_rounded, color: Colors.white, size: 52),
+              SizedBox(height: 20),
+              Text(
+                "Still Building!",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "Lato",
+                ),
+              ),
+              SizedBox(height: 12),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  "Some features may not be fully available yet — check back soon.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    height: 1.5,
+                    fontFamily: "Lato",
+                  ),
+                ),
+              ),
+              SizedBox(height: 28),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Text(
+                    "Got it",
+                    style: TextStyle(
+                      color: Color(0xFF00695C),
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Lato",
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -40,12 +113,11 @@ class _MainFoodPageState extends State<MainFoodPage> {
           children: [
             //showing the header
             Container(
-              child: Container(
-                margin: EdgeInsets.only(
-                    top: Dimensions.height45, bottom: Dimensions.height15),
-                padding: EdgeInsets.only(
-                    left: Dimensions.width20, right: Dimensions.width20),
-                child: Row(
+              margin: EdgeInsets.only(
+                  top: Dimensions.height45, bottom: Dimensions.height15),
+              padding: EdgeInsets.only(
+                  left: Dimensions.width20, right: Dimensions.width20),
+              child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
@@ -70,22 +142,19 @@ class _MainFoodPageState extends State<MainFoodPage> {
                         child: Container(
                           width: Dimensions.height45,
                           height: Dimensions.height45,
-                          child: Icon(Icons.search,
-                              color: Colors.white, size: Dimensions.iconSize24),
                           decoration: BoxDecoration(
                             borderRadius:
                                 BorderRadius.circular(Dimensions.radius15),
                             color: AppColors.mainColor,
                           ),
+                          child: Icon(Icons.search,
+                              color: Colors.white, size: Dimensions.iconSize24),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-            // "under construction" dismissible notice
-            if (_showBanner) _buildBanner(),
             //showing the body
             Expanded(
                 child: SingleChildScrollView(
@@ -93,37 +162,6 @@ class _MainFoodPageState extends State<MainFoodPage> {
             ))
           ],
         ));
-  }
-
-  Widget _buildBanner() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-      color: AppColors.mainColor.withValues(alpha: 0.08),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.construction_outlined,
-              size: 15, color: AppColors.mainColor),
-          SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'We\'re still building! Some features may not be fully available yet — check back soon.',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.mainColor,
-                height: 1.4,
-              ),
-            ),
-          ),
-          SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => setState(() => _showBanner = false),
-            child: Icon(Icons.close, size: 15, color: AppColors.mainColor),
-          ),
-        ],
-      ),
-    );
   }
 }
 

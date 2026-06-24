@@ -55,6 +55,7 @@ class _HomePageState extends State<HomePage> {
 
         if (!isDesktop) {
           return BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
             selectedItemColor: AppColors.mainColor,
             unselectedItemColor: Colors.grey.shade400,
             showSelectedLabels: false,
@@ -69,7 +70,7 @@ class _HomePageState extends State<HomePage> {
           );
         }
 
-        // Desktop / tablet: floating pill with rounded top corners
+        // Desktop / tablet: floating pill
         return Padding(
           padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
           child: Container(
@@ -91,6 +92,7 @@ class _HomePageState extends State<HomePage> {
                 child: SizedBox(
                   width: 440,
                   child: BottomNavigationBar(
+                    type: BottomNavigationBarType.fixed,
                     selectedItemColor: AppColors.mainColor,
                     unselectedItemColor: Colors.grey.shade400,
                     showSelectedLabels: false,
