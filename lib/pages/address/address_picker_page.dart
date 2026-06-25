@@ -193,99 +193,105 @@ class _AddressPickerPageState extends State<AddressPickerPage>
   }
 
   Widget _buildSearchBar() {
-    return Positioned(
-      top: MediaQuery.of(context).padding.top + 8,
-      left: 12,
-      right: 12,
-      child: Column(
-        children: [
+    final isDesktop = MediaQuery.of(context).size.width > 900;
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 10, offset: Offset(0, 3))],
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.arrow_back_ios, size: 18, color: Colors.black87),
+                onPressed: () => Get.back(),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _searchCtrl,
+                  focusNode: _searchFocus,
+                  decoration: InputDecoration(
+                    hintText: 'Search for area, street name...',
+                    hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(vertical: 12),
+                    prefixIcon: Icon(Icons.search, color: Colors.grey.shade400, size: 20),
+                  ),
+                  style: TextStyle(fontSize: 14),
+                  onChanged: (v) => setState(() {
+                    _filter = v;
+                    _showSuggestions = v.isNotEmpty;
+                  }),
+                  onTap: () => setState(() => _showSuggestions = true),
+                ),
+              ),
+              if (_searchCtrl.text.isNotEmpty)
+                IconButton(
+                  icon: Icon(Icons.close, size: 18, color: Colors.grey.shade500),
+                  onPressed: () {
+                    _searchCtrl.clear();
+                    setState(() { _filter = ''; _showSuggestions = false; });
+                  },
+                ),
+            ],
+          ),
+        ),
+        if (_showSuggestions && _filtered.isNotEmpty)
           Container(
+            margin: EdgeInsets.only(top: 4),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 10, offset: Offset(0, 3))],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.10), blurRadius: 8, offset: Offset(0, 3))],
             ),
-            child: Row(
-              children: [
-                // Back
-                IconButton(
-                  icon: Icon(Icons.arrow_back_ios, size: 18, color: Colors.black87),
-                  onPressed: () => Get.back(),
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: _searchCtrl,
-                    focusNode: _searchFocus,
-                    decoration: InputDecoration(
-                      hintText: 'Search for area, street name...',
-                      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 12),
-                      prefixIcon: Icon(Icons.search, color: Colors.grey.shade400, size: 20),
-                    ),
-                    style: TextStyle(fontSize: 14),
-                    onChanged: (v) => setState(() {
-                      _filter = v;
-                      _showSuggestions = v.isNotEmpty;
-                    }),
-                    onTap: () => setState(() => _showSuggestions = _filter.isNotEmpty || true),
-                  ),
-                ),
-                if (_searchCtrl.text.isNotEmpty)
-                  IconButton(
-                    icon: Icon(Icons.close, size: 18, color: Colors.grey.shade500),
-                    onPressed: () {
-                      _searchCtrl.clear();
-                      setState(() { _filter = ''; _showSuggestions = false; });
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: _filtered.take(6).map((s) {
+                  return InkWell(
+                    onTap: () async {
+                      _searchCtrl.text = s['label'] as String;
+                      setState(() { _filter = ''; _showSuggestions = false; _detectedAddress = s['label'] as String; });
+                      _searchFocus.unfocus();
+                      await _flyTo(s['lat'] as double, s['lng'] as double);
                     },
-                  ),
-              ],
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.location_on, color: AppColors.mainColor, size: 18),
+                          SizedBox(width: 12),
+                          Expanded(child: Text(s['label'] as String, style: TextStyle(fontSize: 14, color: Colors.black87))),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
           ),
-          if (_showSuggestions && _filtered.isNotEmpty)
-            Container(
-              margin: EdgeInsets.only(top: 4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.10), blurRadius: 8, offset: Offset(0, 3))],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _filtered.take(6).map((s) {
-                    return InkWell(
-                      onTap: () async {
-                        _searchCtrl.text = s['label'] as String;
-                        setState(() { _filter = ''; _showSuggestions = false; _detectedAddress = s['label'] as String; });
-                        _searchFocus.unfocus();
-                        await _flyTo(s['lat'] as double, s['lng'] as double);
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: Row(
-                          children: [
-                            Icon(Icons.location_on, color: AppColors.mainColor, size: 18),
-                            SizedBox(width: 12),
-                            Expanded(child: Text(s['label'] as String, style: TextStyle(fontSize: 14, color: Colors.black87))),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-        ],
-      ),
+      ],
+    );
+
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 8,
+      left: 0,
+      right: 0,
+      child: isDesktop
+          ? Center(child: SizedBox(width: 560, child: content))
+          : Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: content),
     );
   }
 
   Widget _buildUseLocationBtn() {
+    final isDesktop = MediaQuery.of(context).size.width > 900;
     return Positioned(
-      bottom: 300,
+      bottom: isDesktop ? 420 : 300,
       right: 16,
       child: GestureDetector(
         onTap: _locating ? null : _useMyLocation,
@@ -318,17 +324,16 @@ class _AddressPickerPageState extends State<AddressPickerPage>
         ? _detectedAddress
         : (_searchCtrl.text.isNotEmpty ? _searchCtrl.text : 'Upper Hill Road, Nairobi');
 
-    return Positioned(
-      left: 0, right: 0, bottom: 0,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 20, offset: Offset(0, -4))],
-        ),
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(20, 12, 20, 32),
-          child: Column(
+    final isDesktop = MediaQuery.of(context).size.width > 900;
+    final sheet = Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 20, offset: Offset(0, -4))],
+      ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(20, 12, 20, 32),
+        child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -452,7 +457,13 @@ class _AddressPickerPageState extends State<AddressPickerPage>
             ],
           ),
         ),
-      ),
+    );
+
+    return Positioned(
+      left: 0, right: 0, bottom: 0,
+      child: isDesktop
+          ? Center(child: SizedBox(width: 640, child: sheet))
+          : sheet,
     );
   }
 

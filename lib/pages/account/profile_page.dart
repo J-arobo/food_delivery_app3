@@ -121,6 +121,170 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Widget _buildUserAvatar(String name, {double size = 64, double fontSize = 22, double radius = 14}) {
+    return Stack(
+      children: [
+        Container(
+          width: size, height: size,
+          decoration: BoxDecoration(color: AppColors.mainColor, borderRadius: BorderRadius.circular(radius)),
+          child: Center(child: Text(_initials(name), style: TextStyle(color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.bold))),
+        ),
+        Positioned(
+          bottom: 0, right: 0,
+          child: Container(
+            width: 22, height: 22,
+            decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle,
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)]),
+            child: Icon(Icons.edit, size: 12, color: Colors.grey.shade600),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDesktopLoggedIn(String name, String email, String phone) {
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Full-width white user banner
+            Container(
+              color: Colors.white,
+              padding: EdgeInsets.fromLTRB(32, 28, 32, 28),
+              child: Row(
+                children: [
+                  _buildUserAvatar(name, size: 72, fontSize: 26, radius: 16),
+                  SizedBox(width: 20),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                      SizedBox(height: 6),
+                      Row(children: [
+                        Icon(Icons.email_outlined, size: 14, color: Colors.grey.shade400),
+                        SizedBox(width: 6),
+                        Text(email, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                      ]),
+                      SizedBox(height: 4),
+                      Row(children: [
+                        Icon(Icons.phone_outlined, size: 14, color: Colors.grey.shade400),
+                        SizedBox(width: 6),
+                        Text(phone, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                      ]),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Gray content area
+            Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Stats row — full width, box-style
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: Offset(0, 2))],
+                    ),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          _desktopStatCell('3', 'Orders'),
+                          VerticalDivider(width: 1, color: Colors.grey.shade100),
+                          _desktopStatCell('4', 'Saved'),
+                          VerticalDivider(width: 1, color: Colors.grey.shade100),
+                          _desktopStatCell('7', 'Reviews'),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 20),
+
+                  // Two-column: menu left, recent orders right
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left — menu items
+                      Expanded(
+                        flex: 4,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: Offset(0, 2))],
+                          ),
+                          child: Column(
+                            children: _menuItems.asMap().entries.map((e) {
+                              final last = e.key == _menuItems.length - 1;
+                              return Column(children: [
+                                _menuRow(e.value),
+                                if (!last) Divider(height: 1, color: Colors.grey.shade100, indent: 62),
+                              ]);
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(width: 20),
+
+                      // Right — recent orders + sign out
+                      Expanded(
+                        flex: 6,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('RECENT ORDERS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey.shade500, letterSpacing: 1.2)),
+                            SizedBox(height: 12),
+                            ..._recentOrders.map((order) => _orderCard(order)),
+                            SizedBox(height: 20),
+                            Center(
+                              child: GestureDetector(
+                                onTap: _signOut,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                    Icon(Icons.logout_outlined, color: Colors.redAccent, size: 18),
+                                    SizedBox(width: 8),
+                                    Text('Sign Out', style: TextStyle(color: Colors.redAccent, fontSize: 15, fontWeight: FontWeight.w600)),
+                                  ]),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _desktopStatCell(String value, String label) {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 22),
+        child: Column(
+          children: [
+            Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.mainColor)),
+            SizedBox(height: 4),
+            Text(label, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildLoggedIn(String name, String email, String phone) {
     return Expanded(
       child: SingleChildScrollView(
@@ -138,29 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               child: Row(
                 children: [
-                  Stack(
-                    children: [
-                      Container(
-                        width: 64, height: 64,
-                        decoration: BoxDecoration(
-                          color: AppColors.mainColor,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Center(
-                          child: Text(_initials(name), style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0, right: 0,
-                        child: Container(
-                          width: 22, height: 22,
-                          decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)]),
-                          child: Icon(Icons.edit, size: 12, color: Colors.grey.shade600),
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildUserAvatar(name),
                   SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -354,6 +496,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = MediaQuery.of(context).size.width > 900;
     final isLoggedIn = Get.find<AuthController>().userLoggerIn();
     return Scaffold(
       backgroundColor: Color(0xFFF7F8FA),
@@ -361,9 +504,7 @@ class _ProfilePageState extends State<ProfilePage> {
         top: false,
         child: Column(
           children: [
-            MediaQuery.of(context).size.width > 900
-                ? DesktopTopNav(activeTab: 'profile')
-                : _buildHeader(),
+            isDesktop ? DesktopTopNav(activeTab: 'profile') : _buildHeader(),
             if (!isLoggedIn)
               _buildSignInPrompt()
             else
@@ -371,11 +512,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (!userCtrl.isLoading || userCtrl.userModel == null) {
                   return Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.mainColor)));
                 }
-                return _buildLoggedIn(
-                  userCtrl.userModel!.name,
-                  userCtrl.userModel!.email,
-                  userCtrl.userModel!.phone,
-                );
+                return isDesktop
+                    ? _buildDesktopLoggedIn(
+                        userCtrl.userModel!.name,
+                        userCtrl.userModel!.email,
+                        userCtrl.userModel!.phone,
+                      )
+                    : _buildLoggedIn(
+                        userCtrl.userModel!.name,
+                        userCtrl.userModel!.email,
+                        userCtrl.userModel!.phone,
+                      );
               }),
           ],
         ),

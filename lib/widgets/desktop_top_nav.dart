@@ -16,30 +16,39 @@ class DesktopTopNav extends StatelessWidget {
 
   bool _is(String tab) => activeTab == tab;
 
-  Widget _btn(IconData icon, String label, bool active, {VoidCallback? onTap, int badge = 0}) {
-    final btn = TextButton.icon(
-      onPressed: onTap ?? () {},
-      icon: Icon(icon, size: 18, color: active ? AppColors.mainColor : Colors.grey.shade600),
-      label: Text(label,
-          style: TextStyle(fontSize: 13, color: active ? AppColors.mainColor : Colors.grey.shade600, fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
-      style: TextButton.styleFrom(
-        backgroundColor: active ? Color(0xFFE6FAFA) : Colors.transparent,
+  Widget _btn(IconData icon, IconData activeIcon, String label, bool active, {VoidCallback? onTap, int badge = 0}) {
+    final btn = InkWell(
+      onTap: onTap ?? () {},
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(
+          color: active ? Color(0xFFE6FAFA) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(active ? activeIcon : icon, size: 19, color: active ? AppColors.mainColor : Colors.grey.shade600),
+            SizedBox(width: 6),
+            Text(label, style: TextStyle(fontSize: 13, color: active ? AppColors.mainColor : Colors.grey.shade600, fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
+          ],
+        ),
       ),
     );
-    if (badge <= 0) return Container(margin: EdgeInsets.only(left: 4), child: btn);
-    return Container(
-      margin: EdgeInsets.only(left: 4),
+    if (badge <= 0) return Padding(padding: EdgeInsets.only(left: 4), child: btn);
+    return Padding(
+      padding: EdgeInsets.only(left: 4),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           btn,
           Positioned(
-            top: -2, right: -4,
+            top: 0, right: 0,
             child: Container(
-              width: 18, height: 18,
-              decoration: BoxDecoration(color: AppColors.mainColor, shape: BoxShape.circle),
+              width: 17, height: 17,
+              decoration: BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
               child: Center(child: Text('$badge', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
             ),
           ),
@@ -100,16 +109,16 @@ class DesktopTopNav extends StatelessWidget {
           ),
           Spacer(),
           // Nav buttons
-          _btn(Icons.home_outlined, 'Home', _is('home'),
+          _btn(Icons.home_outlined, Icons.home, 'Home', _is('home'),
               onTap: () => Get.offAllNamed(RouteHelper.getInitial())),
           GetBuilder<CartController>(builder: (cart) =>
-            _btn(Icons.shopping_cart_outlined, 'Cart', _is('cart'),
+            _btn(Icons.shopping_cart_outlined, Icons.shopping_cart, 'Cart', _is('cart'),
                 badge: cart.totalItems,
                 onTap: () => Get.toNamed(RouteHelper.getCartPage())),
           ),
-          _btn(Icons.favorite_border, 'Saved', _is('saved'),
+          _btn(Icons.favorite_border, Icons.favorite, 'Saved', _is('saved'),
               onTap: () => Get.toNamed(RouteHelper.getSavedPage())),
-          _btn(Icons.person_outline, 'Profile', _is('profile'),
+          _btn(Icons.person_outline, Icons.person, 'Profile', _is('profile'),
               onTap: () => Get.toNamed(RouteHelper.getProfilePage())),
         ],
       ),

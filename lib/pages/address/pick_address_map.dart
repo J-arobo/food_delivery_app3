@@ -101,6 +101,13 @@ class _PickAddressMapState extends State<PickAddressMap> {
                     ),
                     child: Row(
                       children: [
+                        GestureDetector(
+                          onTap: () => Get.back(),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: Dimensions.width10 / 2),
+                            child: Icon(Icons.arrow_back_ios, size: 20, color: Colors.white),
+                          ),
+                        ),
                         Icon(
                           Icons.location_on,
                           size: 25,

@@ -107,6 +107,43 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
 
   Widget _buildCartStep(CartController cart) {
     final items = cart.getItems;
+
+    if (items.isEmpty) {
+      return Column(
+        children: [
+          _buildHeader(),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 96, height: 96,
+                    decoration: BoxDecoration(color: Color(0xFFE6FAFA), shape: BoxShape.circle),
+                    child: Icon(Icons.shopping_cart_outlined, size: 44, color: AppColors.mainColor),
+                  ),
+                  SizedBox(height: 24),
+                  Text('Your cart is empty', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 10),
+                  Text('Add some delicious food to get started', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                  SizedBox(height: 28),
+                  ElevatedButton(
+                    onPressed: () => Get.offAllNamed(RouteHelper.getInitial()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mainColor, elevation: 0,
+                      padding: EdgeInsets.symmetric(horizontal: 36, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    ),
+                    child: Text('Browse Menu', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     final subtotal = cart.totalAmount;
     const delivery = 50;
     final total = subtotal + delivery;
@@ -136,36 +173,7 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
                 ),
                 SizedBox(height: 20),
 
-                // Cart items
-                if (items.isEmpty)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 48),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 88, height: 88,
-                          decoration: BoxDecoration(color: Color(0xFFE6FAFA), shape: BoxShape.circle),
-                          child: Icon(Icons.shopping_cart_outlined, size: 40, color: AppColors.mainColor),
-                        ),
-                        SizedBox(height: 20),
-                        Text('Your cart is empty', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 8),
-                        Text('Add some delicious food to get started', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
-                        SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: () => Get.offAllNamed(RouteHelper.getInitial()),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.mainColor, elevation: 0,
-                            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                          ),
-                          child: Text('Browse Menu', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  ...items.map((item) => _buildCartItem(item, cart)),
+                ...items.map((item) => _buildCartItem(item, cart)),
 
                 SizedBox(height: 16),
 

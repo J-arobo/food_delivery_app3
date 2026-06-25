@@ -58,6 +58,14 @@ class SignUpPage extends StatelessWidget {
 
     return Scaffold(
         backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black87, size: 20),
+            onPressed: () => Get.back(),
+          ),
+        ),
         body: GetBuilder<AuthController>(builder: (_authController) {
           return !_authController.isLoading
               ? SingleChildScrollView(
