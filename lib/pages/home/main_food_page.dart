@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/controllers/auth_controller.dart';
 import 'package:food_delivery_app/controllers/cart_controller.dart';
 import 'package:food_delivery_app/controllers/popular_product_controller.dart';
 import 'package:food_delivery_app/controllers/recommeded_product_controller.dart';
@@ -178,23 +179,36 @@ class _MainFoodPageState extends State<MainFoodPage> {
           children: [
             _buildDesktopTopNav(context),
             Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Left sidebar
-                  SizedBox(
-                    width: 220,
-                    child: SingleChildScrollView(
-                      child: _buildDesktopSidebar(),
+              child: Container(
+                color: const Color(0xFFF7F8FA),
+                child: LayoutBuilder(builder: (ctx, constraints) {
+                  final bodyWidth = constraints.maxWidth.clamp(0.0, 1400.0);
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      width: bodyWidth,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Left sidebar
+                          Container(
+                            width: 220,
+                            color: Colors.white,
+                            child: SingleChildScrollView(
+                              child: _buildDesktopSidebar(),
+                            ),
+                          ),
+                          // Center content
+                          Expanded(
+                            child: SingleChildScrollView(child: FoodPageBody()),
+                          ),
+                          // Right panel
+                          _buildRightPanel(),
+                        ],
+                      ),
                     ),
-                  ),
-                  // Center content
-                  Expanded(
-                    child: SingleChildScrollView(child: FoodPageBody()),
-                  ),
-                  // Right panel (placeholder — edit later)
-                  _buildRightPanel(),
-                ],
+                  );
+                }),
               ),
             ),
           ],
@@ -426,9 +440,20 @@ class _MainFoodPageState extends State<MainFoodPage> {
                     SizedBox(
                       width: double.infinity, height: 42,
                       child: ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (Get.find<AuthController>().userLoggerIn()) {
+                            Get.toNamed(RouteHelper.getCartPage());
+                          } else {
+                            Get.toNamed(RouteHelper.getSignInPage());
+                          }
+                        },
                         icon: Icon(Icons.shopping_cart_outlined, size: 15, color: Colors.white),
-                        label: Text('Proceed to Checkout', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+                        label: Text(
+                          Get.find<AuthController>().userLoggerIn()
+                              ? 'Proceed to Checkout'
+                              : 'Sign in to Checkout',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.mainColor,
                           elevation: 0,
