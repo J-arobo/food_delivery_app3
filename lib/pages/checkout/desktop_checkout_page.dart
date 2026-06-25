@@ -3,6 +3,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/controllers/cart_controller.dart';
+import 'package:food_delivery_app/pages/address/address_picker_page.dart';
+import 'package:food_delivery_app/widgets/desktop_top_nav.dart';
+import 'package:food_delivery_app/widgets/pulsing_signal_icon.dart';
 import 'package:food_delivery_app/routes/route_helper.dart';
 import 'package:food_delivery_app/utils/app_constants.dart';
 import 'package:food_delivery_app/utils/colors.dart';
@@ -28,9 +31,10 @@ class _DesktopCheckoutPageState extends State<DesktopCheckoutPage> {
   ];
 
   static const _payments = [
-    {'icon': 'mpesa', 'name': 'M-Pesa',          'detail': '**** 7821'},
-    {'icon': 'visa',  'name': 'Visa Card',        'detail': '**** **** **** 4242'},
-    {'icon': 'cash',  'name': 'Cash on Delivery', 'detail': 'Pay when you receive'},
+    {'icon': 'mpesa',  'name': 'M-Pesa',          'detail': '**** 7821'},
+    {'icon': 'visa',   'name': 'Visa Card',        'detail': '**** **** **** 4242'},
+    {'icon': 'paypal', 'name': 'PayPal',           'detail': 'user@example.com'},
+    {'icon': 'cash',   'name': 'Cash on Delivery', 'detail': 'Pay when you receive'},
   ];
 
   static const _statusSteps = [
@@ -39,106 +43,6 @@ class _DesktopCheckoutPageState extends State<DesktopCheckoutPage> {
     {'label': 'Out for Delivery',    'done': false, 'live': false},
     {'label': 'Delivered',           'done': false, 'live': false},
   ];
-
-  // ── Desktop top nav ──────────────────────────────────────────────────────────
-
-  Widget _buildTopNav() {
-    return Container(
-      height: 64,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
-        children: [
-          Text('katqa', style: TextStyle(color: AppColors.mainColor, fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: -0.5)),
-          SizedBox(width: 20),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(20)),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.location_on, size: 13, color: AppColors.mainColor),
-              SizedBox(width: 4),
-              Text('Nairobi', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey.shade700)),
-              SizedBox(width: 2),
-              Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey.shade500),
-            ]),
-          ),
-          SizedBox(width: 16),
-          Flexible(
-            fit: FlexFit.loose,
-            child: Container(
-              height: 40,
-              width: double.infinity,
-              constraints: BoxConstraints(maxWidth: 420),
-              decoration: BoxDecoration(color: Color(0xFFF2F3F5), borderRadius: BorderRadius.circular(24)),
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Row(children: [
-                Icon(Icons.search, size: 16, color: Colors.grey.shade400),
-                SizedBox(width: 8),
-                Text('Search food, restaurants…', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
-              ]),
-            ),
-          ),
-          Spacer(),
-          _navBtn(Icons.home_outlined, 'Home', false, onTap: () => Get.offAllNamed(RouteHelper.getInitial())),
-          GetBuilder<CartController>(builder: (cart) =>
-            _navBtnBadge(Icons.shopping_cart_outlined, 'Cart', true, badge: cart.totalItems),
-          ),
-          _navBtn(Icons.favorite_border, 'Saved', false),
-          _navBtn(Icons.person_outline, 'Profile', false),
-        ],
-      ),
-    );
-  }
-
-  Widget _navBtn(IconData icon, String label, bool active, {VoidCallback? onTap}) {
-    return Container(
-      margin: EdgeInsets.only(left: 4),
-      child: TextButton.icon(
-        onPressed: onTap ?? () {},
-        icon: Icon(icon, size: 18, color: active ? AppColors.mainColor : Colors.grey.shade600),
-        label: Text(label, style: TextStyle(fontSize: 13, color: active ? AppColors.mainColor : Colors.grey.shade600, fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
-        style: TextButton.styleFrom(
-          backgroundColor: active ? Color(0xFFE6FAFA) : Colors.transparent,
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
-    );
-  }
-
-  Widget _navBtnBadge(IconData icon, String label, bool active, {int badge = 0}) {
-    final btn = TextButton.icon(
-      onPressed: () {},
-      icon: Icon(icon, size: 18, color: active ? AppColors.mainColor : Colors.grey.shade600),
-      label: Text(label, style: TextStyle(fontSize: 13, color: active ? AppColors.mainColor : Colors.grey.shade600, fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
-      style: TextButton.styleFrom(
-        backgroundColor: active ? Color(0xFFE6FAFA) : Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-    if (badge <= 0) return Container(margin: EdgeInsets.only(left: 4), child: btn);
-    return Container(
-      margin: EdgeInsets.only(left: 4),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          btn,
-          Positioned(
-            top: -2, right: -4,
-            child: Container(
-              width: 18, height: 18,
-              decoration: BoxDecoration(color: AppColors.mainColor, shape: BoxShape.circle),
-              child: Center(child: Text('$badge', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ── Step indicator ───────────────────────────────────────────────────────────
 
@@ -187,13 +91,30 @@ class _DesktopCheckoutPageState extends State<DesktopCheckoutPage> {
           // Cart items
           if (items.isEmpty)
             Container(
-              padding: EdgeInsets.symmetric(vertical: 48),
-              child: Center(
-                child: Column(children: [
-                  Icon(Icons.shopping_cart_outlined, size: 60, color: Colors.grey.shade300),
-                  SizedBox(height: 12),
-                  Text('Your cart is empty', style: TextStyle(color: Colors.grey.shade500, fontSize: 15)),
-                ]),
+              padding: EdgeInsets.symmetric(vertical: 60),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 88, height: 88,
+                    decoration: BoxDecoration(color: Color(0xFFE6FAFA), shape: BoxShape.circle),
+                    child: Icon(Icons.shopping_cart_outlined, size: 40, color: AppColors.mainColor),
+                  ),
+                  SizedBox(height: 20),
+                  Text('Your cart is empty', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                  SizedBox(height: 8),
+                  Text('Add some delicious food to get started', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                  SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => Get.offAllNamed(RouteHelper.getInitial()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mainColor, elevation: 0,
+                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    ),
+                    child: Text('Browse Menu', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                  ),
+                ],
               ),
             )
           else
@@ -408,21 +329,24 @@ class _DesktopCheckoutPageState extends State<DesktopCheckoutPage> {
   }
 
   Widget _addAddressCard() {
-    return Container(
-      padding: EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200, width: 1),
-      ),
-      child: Row(children: [
-        Container(
-          width: 28, height: 28,
-          decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-          child: Icon(Icons.add, size: 16, color: Colors.grey.shade500),
+    return GestureDetector(
+      onTap: () => Get.to(() => const AddressPickerPage()),
+      child: Container(
+        padding: EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.grey.shade200, width: 1),
         ),
-        SizedBox(width: 12),
-        Text('Add a new address', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
-      ]),
+        child: Row(children: [
+          Container(
+            width: 28, height: 28,
+            decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+            child: Icon(Icons.add, size: 16, color: Colors.grey.shade500),
+          ),
+          SizedBox(width: 12),
+          Text('Add a new address', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+        ]),
+      ),
     );
   }
 
@@ -536,17 +460,7 @@ class _DesktopCheckoutPageState extends State<DesktopCheckoutPage> {
       padding: EdgeInsets.symmetric(vertical: 60),
       child: Column(
         children: [
-          Container(
-            width: 100, height: 100,
-            decoration: BoxDecoration(color: Color(0xFFE6FAFA), shape: BoxShape.circle),
-            child: Center(
-              child: Container(
-                width: 60, height: 60,
-                decoration: BoxDecoration(color: Color(0xFFB2F0F0), shape: BoxShape.circle),
-                child: Icon(Icons.check_circle_outline, color: AppColors.mainColor, size: 36),
-              ),
-            ),
-          ),
+          PulsingSignalIcon(size: 80),
           SizedBox(height: 24),
           Text('Order Placed!', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
           SizedBox(height: 10),
@@ -662,25 +576,28 @@ class _DesktopCheckoutPageState extends State<DesktopCheckoutPage> {
 
   IconData _paymentIcon(String key) {
     switch (key) {
-      case 'mpesa': return Icons.phone_android;
-      case 'visa':  return Icons.credit_card;
-      default:      return Icons.money;
+      case 'mpesa':  return Icons.phone_android;
+      case 'visa':   return Icons.credit_card;
+      case 'paypal': return Icons.account_balance_wallet_outlined;
+      default:       return Icons.money;
     }
   }
 
   Color _paymentIconBg(String key) {
     switch (key) {
-      case 'mpesa': return Color(0xFFE6FAFA);
-      case 'visa':  return Color(0xFFEEF0FF);
-      default:      return Color(0xFFFFF8E1);
+      case 'mpesa':  return Color(0xFFE6FAFA);
+      case 'visa':   return Color(0xFFEEF0FF);
+      case 'paypal': return Color(0xFFE8F4FD);
+      default:       return Color(0xFFFFF8E1);
     }
   }
 
   Color _paymentIconColor(String key) {
     switch (key) {
-      case 'mpesa': return AppColors.mainColor;
-      case 'visa':  return Colors.indigo;
-      default:      return Colors.orange;
+      case 'mpesa':  return AppColors.mainColor;
+      case 'visa':   return Colors.indigo;
+      case 'paypal': return Color(0xFF003087);
+      default:       return Colors.orange;
     }
   }
 
@@ -695,7 +612,7 @@ class _DesktopCheckoutPageState extends State<DesktopCheckoutPage> {
         backgroundColor: Color(0xFFF7F8FA),
         body: Column(
           children: [
-            _buildTopNav(),
+            const DesktopTopNav(activeTab: 'cart'),
             Expanded(
               child: Center(
                 child: ConstrainedBox(

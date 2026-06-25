@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/controllers/auth_controller.dart';
+import 'package:food_delivery_app/widgets/desktop_top_nav.dart';
 import 'package:food_delivery_app/controllers/cart_controller.dart';
 import 'package:food_delivery_app/controllers/location_controller.dart';
 import 'package:food_delivery_app/controllers/user_controller.dart';
@@ -360,12 +361,14 @@ class _ProfilePageState extends State<ProfilePage> {
         top: false,
         child: Column(
           children: [
-            _buildHeader(),
+            MediaQuery.of(context).size.width > 900
+                ? DesktopTopNav(activeTab: 'profile')
+                : _buildHeader(),
             if (!isLoggedIn)
               _buildSignInPrompt()
             else
               GetBuilder<UserController>(builder: (userCtrl) {
-                if (userCtrl.isLoading || userCtrl.userModel == null) {
+                if (!userCtrl.isLoading || userCtrl.userModel == null) {
                   return Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.mainColor)));
                 }
                 return _buildLoggedIn(

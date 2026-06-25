@@ -3,7 +3,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/controllers/cart_controller.dart';
+import 'package:food_delivery_app/pages/address/address_picker_page.dart';
 import 'package:food_delivery_app/routes/route_helper.dart';
+import 'package:food_delivery_app/widgets/pulsing_signal_icon.dart';
 import 'package:food_delivery_app/utils/app_constants.dart';
 import 'package:food_delivery_app/utils/colors.dart';
 import 'package:get/get.dart';
@@ -28,9 +30,10 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
   ];
 
   static const _payments = [
-    {'icon': 'mpesa', 'name': 'M-Pesa',            'detail': '**** 7821'},
-    {'icon': 'visa',  'name': 'Visa Card',          'detail': '**** **** **** 4242'},
-    {'icon': 'cash',  'name': 'Cash on Delivery',   'detail': 'Pay when you receive'},
+    {'icon': 'mpesa',  'name': 'M-Pesa',            'detail': '**** 7821'},
+    {'icon': 'visa',   'name': 'Visa Card',          'detail': '**** **** **** 4242'},
+    {'icon': 'paypal', 'name': 'PayPal',             'detail': 'user@example.com'},
+    {'icon': 'cash',   'name': 'Cash on Delivery',   'detail': 'Pay when you receive'},
   ];
 
   static const _statusSteps = [
@@ -135,16 +138,30 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
 
                 // Cart items
                 if (items.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40),
-                      child: Column(
-                        children: [
-                          Icon(Icons.shopping_cart_outlined, size: 60, color: Colors.grey.shade300),
-                          SizedBox(height: 12),
-                          Text('Your cart is empty', style: TextStyle(color: Colors.grey.shade500, fontSize: 15)),
-                        ],
-                      ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 48),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 88, height: 88,
+                          decoration: BoxDecoration(color: Color(0xFFE6FAFA), shape: BoxShape.circle),
+                          child: Icon(Icons.shopping_cart_outlined, size: 40, color: AppColors.mainColor),
+                        ),
+                        SizedBox(height: 20),
+                        Text('Your cart is empty', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text('Add some delicious food to get started', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                        SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () => Get.offAllNamed(RouteHelper.getInitial()),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.mainColor, elevation: 0,
+                            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          ),
+                          child: Text('Browse Menu', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                        ),
+                      ],
                     ),
                   )
                 else
@@ -414,23 +431,26 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
   }
 
   Widget _addAddressCard() {
-    return Container(
-      padding: EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200, width: 1, style: BorderStyle.solid),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 28, height: 28,
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-            child: Icon(Icons.add, size: 16, color: Colors.grey.shade500),
-          ),
-          SizedBox(width: 12),
-          Text('Add a new address', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
-        ],
+    return GestureDetector(
+      onTap: () => Get.to(() => const AddressPickerPage()),
+      child: Container(
+        padding: EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.grey.shade200, width: 1, style: BorderStyle.solid),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 28, height: 28,
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+              child: Icon(Icons.add, size: 16, color: Colors.grey.shade500),
+            ),
+            SizedBox(width: 12),
+            Text('Add a new address', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+          ],
+        ),
       ),
     );
   }
@@ -573,18 +593,7 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
             padding: EdgeInsets.fromLTRB(24, 32, 24, 24),
             child: Column(
               children: [
-                // Check circle
-                Container(
-                  width: 100, height: 100,
-                  decoration: BoxDecoration(color: Color(0xFFE6FAFA), shape: BoxShape.circle),
-                  child: Center(
-                    child: Container(
-                      width: 60, height: 60,
-                      decoration: BoxDecoration(color: Color(0xFFB2F0F0), shape: BoxShape.circle),
-                      child: Icon(Icons.check_circle_outline, color: AppColors.mainColor, size: 36),
-                    ),
-                  ),
-                ),
+                PulsingSignalIcon(size: 80),
                 SizedBox(height: 24),
                 Text('Order Placed!', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
                 SizedBox(height: 10),
@@ -725,25 +734,28 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
 
   IconData _paymentIcon(String key) {
     switch (key) {
-      case 'mpesa': return Icons.phone_android;
-      case 'visa':  return Icons.credit_card;
-      default:      return Icons.money;
+      case 'mpesa':  return Icons.phone_android;
+      case 'visa':   return Icons.credit_card;
+      case 'paypal': return Icons.account_balance_wallet_outlined;
+      default:       return Icons.money;
     }
   }
 
   Color _paymentIconBg(String key) {
     switch (key) {
-      case 'mpesa': return Color(0xFFE6FAFA);
-      case 'visa':  return Color(0xFFEEF0FF);
-      default:      return Color(0xFFFFF8E1);
+      case 'mpesa':  return Color(0xFFE6FAFA);
+      case 'visa':   return Color(0xFFEEF0FF);
+      case 'paypal': return Color(0xFFE8F4FD);
+      default:       return Color(0xFFFFF8E1);
     }
   }
 
   Color _paymentIconColor(String key) {
     switch (key) {
-      case 'mpesa': return AppColors.mainColor;
-      case 'visa':  return Colors.indigo;
-      default:      return Colors.orange;
+      case 'mpesa':  return AppColors.mainColor;
+      case 'visa':   return Colors.indigo;
+      case 'paypal': return Color(0xFF003087);
+      default:       return Colors.orange;
     }
   }
 

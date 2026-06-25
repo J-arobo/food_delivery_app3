@@ -345,7 +345,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           shrinkWrap: true,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: cols,
-            mainAxisExtent: 290,
+            mainAxisExtent: 325,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
           ),
@@ -392,6 +392,9 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                           AppConstants.UPLOAD_URL +
                           product.img!,
                       fit: BoxFit.cover,
+                      loadingBuilder: (_, child, progress) =>
+                          progress == null ? child : Container(color: Colors.grey.shade100),
+                      errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade100),
                     ),
                   ),
                 ),

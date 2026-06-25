@@ -2,7 +2,9 @@ import 'package:food_delivery_app/models/order_model.dart';
 import 'package:food_delivery_app/pages/address/add_address_page.dart';
 import 'package:food_delivery_app/pages/address/pick_address_map.dart';
 import 'package:food_delivery_app/pages/auth/sign_in_page.dart';
+import 'package:food_delivery_app/pages/account/profile_page.dart';
 import 'package:food_delivery_app/pages/checkout/desktop_checkout_page.dart';
+import 'package:food_delivery_app/pages/saved/saved_page.dart';
 import 'package:food_delivery_app/pages/food/popular_food_detail.dart';
 import 'package:food_delivery_app/pages/food/recommended_food_detail.dart';
 import 'package:food_delivery_app/pages/home/home_page.dart';
@@ -20,6 +22,8 @@ class RouteHelper {
   static const String cartPage = "/cart-page";
   static const String signIn = "/sign-in";
 
+  static const String savedPage = "/saved-page";
+  static const String profilePage = "/profile-page";
   static const String addAddress = "/add-address";
   static const String pickAddressMap = "/pick-address";
   static const String payment = '/payment';
@@ -33,6 +37,8 @@ class RouteHelper {
       '$recommendedFood?pageId=$pageId&page=$page';
   static String getCartPage() => '$cartPage';
   static String getSignInPage() => '$signIn';
+  static String getSavedPage() => '$savedPage';
+  static String getProfilePage() => '$profilePage';
   static String getAddressPage() => '$addAddress';
   static String getPickAddressPage() => '$pickAddressMap';
   static String getPaymentPage(String id, int userID) =>
@@ -82,6 +88,8 @@ class RouteHelper {
           return const DesktopCheckoutPage();
         },
         transition: Transition.fadeIn),
+    GetPage(name: savedPage,   page: () => const SavedPage(),   transition: Transition.fadeIn),
+    GetPage(name: profilePage, page: () => const ProfilePage(), transition: Transition.fadeIn),
     GetPage(
         name: addAddress,
         page: () {

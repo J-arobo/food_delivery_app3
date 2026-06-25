@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/controllers/cart_controller.dart';
+import 'package:food_delivery_app/widgets/desktop_top_nav.dart';
 import 'package:food_delivery_app/controllers/saved_controller.dart';
 import 'package:food_delivery_app/models/products_model.dart';
 import 'package:food_delivery_app/utils/app_constants.dart';
@@ -190,7 +191,9 @@ class SavedPage extends StatelessWidget {
           top: false,
           child: Column(
             children: [
-              _buildHeader(),
+              MediaQuery.of(context).size.width > 900
+                  ? const DesktopTopNav(activeTab: 'saved')
+                  : _buildHeader(),
               if (items.isEmpty)
                 _buildEmptyState()
               else ...[
