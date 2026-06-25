@@ -1,4 +1,5 @@
 import 'package:food_delivery_app/controllers/auth_controller.dart';
+import 'package:food_delivery_app/controllers/saved_controller.dart';
 import 'package:food_delivery_app/controllers/cart_controller.dart';
 import 'package:food_delivery_app/controllers/location_controller.dart';
 import 'package:food_delivery_app/controllers/order_controller.dart';
@@ -50,4 +51,5 @@ Future<void> init() async {
   Get.lazyPut(() => CartController(cartRepo: Get.find()));
   Get.lazyPut(() => LocationController(locationRepo: Get.find()));
   Get.lazyPut(() => OrderController(orderRepo: Get.find()));
+  Get.lazyPut(() => SavedController());
 }

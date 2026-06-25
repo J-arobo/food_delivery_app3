@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:food_delivery_app/models/order_model.dart';
 import 'package:food_delivery_app/pages/address/add_address_page.dart';
 import 'package:food_delivery_app/pages/address/pick_address_map.dart';
 import 'package:food_delivery_app/pages/auth/sign_in_page.dart';
-import 'package:food_delivery_app/pages/cart/cart_page.dart';
+import 'package:food_delivery_app/pages/checkout/desktop_checkout_page.dart';
 import 'package:food_delivery_app/pages/food/popular_food_detail.dart';
 import 'package:food_delivery_app/pages/food/recommended_food_detail.dart';
 import 'package:food_delivery_app/pages/home/home_page.dart';
-import 'package:food_delivery_app/pages/home/main_food_page.dart';
 import 'package:food_delivery_app/pages/payment/order_success_page.dart';
 import 'package:food_delivery_app/pages/payment/payment_page.dart';
 import 'package:food_delivery_app/pages/splash/splash_page.dart';
@@ -81,7 +79,7 @@ class RouteHelper {
     GetPage(
         name: cartPage,
         page: () {
-          return CartPage();
+          return const DesktopCheckoutPage();
         },
         transition: Transition.fadeIn),
     GetPage(

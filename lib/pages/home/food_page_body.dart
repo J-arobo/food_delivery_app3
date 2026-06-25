@@ -3,6 +3,7 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_app/controllers/cart_controller.dart';
+import 'package:food_delivery_app/controllers/saved_controller.dart';
 import 'package:food_delivery_app/controllers/popular_product_controller.dart';
 import 'package:food_delivery_app/controllers/recommeded_product_controller.dart';
 import 'package:food_delivery_app/models/products_model.dart';
@@ -420,21 +421,29 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
+                  child: GetBuilder<SavedController>(builder: (saved) =>
+                    GestureDetector(
+                      onTap: () => saved.toggle(product),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 4,
+                            ),
+                          ],
                         ),
-                      ],
+                        child: Icon(
+                          saved.isSaved(product.id!) ? Icons.favorite : Icons.favorite_border,
+                          size: 15,
+                          color: saved.isSaved(product.id!) ? Colors.redAccent : Colors.grey.shade400,
+                        ),
+                      ),
                     ),
-                    child: Icon(Icons.favorite_border,
-                        size: 15, color: Colors.grey.shade400),
                   ),
                 ),
               ],

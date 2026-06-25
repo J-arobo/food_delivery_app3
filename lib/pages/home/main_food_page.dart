@@ -188,7 +188,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
                     child: SizedBox(
                       width: bodyWidth,
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Left sidebar
                           Container(
@@ -294,7 +294,10 @@ class _MainFoodPageState extends State<MainFoodPage> {
           // Nav buttons
           _topNavBtn(Icons.home_outlined, 'Home', true),
           GetBuilder<CartController>(builder: (cart) =>
-            _topNavBtn(Icons.shopping_cart_outlined, 'Cart', false, badge: cart.totalItems),
+            _topNavBtn(Icons.shopping_cart_outlined, 'Cart', false,
+              badge: cart.totalItems,
+              onTap: () => Get.toNamed(RouteHelper.getCartPage()),
+            ),
           ),
           _topNavBtn(Icons.favorite_border, 'Saved', false),
           _topNavBtn(Icons.person_outline, 'Profile', false),
@@ -303,9 +306,9 @@ class _MainFoodPageState extends State<MainFoodPage> {
     );
   }
 
-  Widget _topNavBtn(IconData icon, String label, bool active, {int badge = 0}) {
+  Widget _topNavBtn(IconData icon, String label, bool active, {int badge = 0, VoidCallback? onTap}) {
     final btn = TextButton.icon(
-      onPressed: () {},
+      onPressed: onTap ?? () {},
       icon: Icon(icon, size: 18, color: active ? AppColors.mainColor : Colors.grey.shade600),
       label: Text(label, style: TextStyle(fontSize: 13, color: active ? AppColors.mainColor : Colors.grey.shade600, fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
       style: TextButton.styleFrom(
