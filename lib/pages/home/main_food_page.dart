@@ -1,18 +1,17 @@
 // ignore_for_file: prefer_const_constructors, prefer_interpolation_to_compose_strings, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/controllers/cart_controller.dart';
 import 'package:food_delivery_app/controllers/popular_product_controller.dart';
 import 'package:food_delivery_app/controllers/recommeded_product_controller.dart';
 import 'package:food_delivery_app/pages/home/food_page_body.dart';
+import 'package:food_delivery_app/routes/route_helper.dart';
+import 'package:food_delivery_app/utils/app_constants.dart';
 import 'package:food_delivery_app/utils/colors.dart';
 import 'package:food_delivery_app/utils/dimensions.dart';
 import 'package:food_delivery_app/widgets/big_text.dart';
 import 'package:food_delivery_app/widgets/small_text.dart';
 import 'package:get/get.dart';
-import 'package:food_delivery_app/controllers/recommeded_product_controller.dart';
-import 'package:food_delivery_app/models/products_model.dart';
-import 'package:food_delivery_app/routes/route_helper.dart';
-import 'package:food_delivery_app/utils/app_constants.dart';
 
 
 class MainFoodPage extends StatefulWidget {
@@ -38,6 +37,12 @@ class _MainFoodPageState extends State<MainFoodPage> {
     Icons.set_meal_outlined,
     Icons.water_outlined,
     Icons.spa_outlined,
+  ];
+
+  static const _popularSpots = <Map<String, String>>[
+    {'name': "Mama's Kitchen", 'cuisine': 'Kenyan', 'time': '20min', 'img': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200&q=80'},
+    {'name': 'Nairobi Grill',  'cuisine': 'BBQ',    'time': '25min', 'img': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&q=80'},
+    {'name': 'Spice Route',    'cuisine': 'Indian', 'time': '30min', 'img': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&q=80'},
   ];
 
   Future<void> _loadResource() async {
@@ -274,7 +279,9 @@ class _MainFoodPageState extends State<MainFoodPage> {
           Spacer(),
           // Nav buttons
           _topNavBtn(Icons.home_outlined, 'Home', true),
-          _topNavBtn(Icons.shopping_cart_outlined, 'Cart', false),
+          GetBuilder<CartController>(builder: (cart) =>
+            _topNavBtn(Icons.shopping_cart_outlined, 'Cart', false, badge: cart.totalItems),
+          ),
           _topNavBtn(Icons.favorite_border, 'Saved', false),
           _topNavBtn(Icons.person_outline, 'Profile', false),
         ],
@@ -282,18 +289,33 @@ class _MainFoodPageState extends State<MainFoodPage> {
     );
   }
 
-  Widget _topNavBtn(IconData icon, String label, bool active) {
+  Widget _topNavBtn(IconData icon, String label, bool active, {int badge = 0}) {
+    final btn = TextButton.icon(
+      onPressed: () {},
+      icon: Icon(icon, size: 18, color: active ? AppColors.mainColor : Colors.grey.shade600),
+      label: Text(label, style: TextStyle(fontSize: 13, color: active ? AppColors.mainColor : Colors.grey.shade600, fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
+      style: TextButton.styleFrom(
+        backgroundColor: active ? Color(0xFFE6FAFA) : Colors.transparent,
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+    if (badge <= 0) return Container(margin: EdgeInsets.only(left: 4), child: btn);
     return Container(
       margin: EdgeInsets.only(left: 4),
-      child: TextButton.icon(
-        onPressed: () {},
-        icon: Icon(icon, size: 18, color: active ? AppColors.mainColor : Colors.grey.shade600),
-        label: Text(label, style: TextStyle(fontSize: 13, color: active ? AppColors.mainColor : Colors.grey.shade600, fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
-        style: TextButton.styleFrom(
-          backgroundColor: active ? Color(0xFFE6FAFA) : Colors.transparent,
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          btn,
+          Positioned(
+            top: -2, right: -4,
+            child: Container(
+              width: 18, height: 18,
+              decoration: BoxDecoration(color: AppColors.mainColor, shape: BoxShape.circle),
+              child: Center(child: Text('$badge', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -305,52 +327,166 @@ class _MainFoodPageState extends State<MainFoodPage> {
         color: Colors.white,
         border: Border(left: BorderSide(color: Colors.grey.shade100)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
-            child: Text(
-              'YOUR ORDER',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey.shade400,
-                letterSpacing: 1.5,
-              ),
+      child: GetBuilder<CartController>(builder: (cart) {
+        final items = cart.getItems;
+        final subtotal = cart.totalAmount;
+        const deliveryFee = 50;
+        final total = subtotal + (items.isEmpty ? 0 : deliveryFee);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+              child: Text('YOUR ORDER', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey.shade400, letterSpacing: 1.5)),
             ),
-          ),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Color(0xFFE6FAFA),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(Icons.shopping_cart_outlined, color: AppColors.mainColor, size: 24),
+            if (items.isEmpty)
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 56, height: 56,
+                        decoration: BoxDecoration(color: Color(0xFFE6FAFA), borderRadius: BorderRadius.circular(16)),
+                        child: Icon(Icons.shopping_cart_outlined, color: AppColors.mainColor, size: 24),
+                      ),
+                      SizedBox(height: 12),
+                      Text('Cart is empty', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+                      SizedBox(height: 4),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24),
+                        child: Text('Add items from the menu\nto get started', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Colors.grey.shade400, height: 1.5)),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 12),
-                  Text('Cart is empty', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
-                  SizedBox(height: 4),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      'Add items from the menu\nto get started',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade400, height: 1.5),
-                    ),
-                  ),
-                ],
+                ),
+              )
+            else ...[
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: items.length,
+                  itemBuilder: (_, i) {
+                    final item = items[i];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 12),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12)),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              AppConstants.BASE_URL + AppConstants.UPLOAD_URL + item.img!,
+                              width: 52, height: 52, fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(width: 52, height: 52, color: Colors.grey.shade200),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(item.name!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+                                SizedBox(height: 2),
+                                Text('KSh ${item.price}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.mainColor)),
+                                SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    _qtyBtn('−', () => cart.addItem(item.product!, -1)),
+                                    SizedBox(width: 8),
+                                    Text('${item.quantity}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                    SizedBox(width: 8),
+                                    _qtyBtn('+', () => cart.addItem(item.product!, 1)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-          ),
-        ],
+              Container(
+                padding: EdgeInsets.fromLTRB(20, 16, 20, 20),
+                decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade100))),
+                child: Column(
+                  children: [
+                    _summaryRow('Subtotal', 'KSh $subtotal'),
+                    SizedBox(height: 6),
+                    _summaryRow('Delivery Fee', 'KSh $deliveryFee'),
+                    SizedBox(height: 6),
+                    Divider(color: Colors.grey.shade100),
+                    SizedBox(height: 4),
+                    _summaryRow('Total', 'KSh $total', bold: true),
+                    SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity, height: 42,
+                      child: ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: Icon(Icons.shopping_cart_outlined, size: 15, color: Colors.white),
+                        label: Text('Proceed to Checkout', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.mainColor,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Row(children: [
+                      Expanded(
+                        child: Container(
+                          height: 34,
+                          decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8)),
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: TextField(
+                            decoration: InputDecoration(hintText: 'Promo code', hintStyle: TextStyle(fontSize: 12, color: Colors.grey.shade400), border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {},
+                        child: Container(
+                          height: 34, width: 54,
+                          decoration: BoxDecoration(color: AppColors.mainColor, borderRadius: BorderRadius.circular(8)),
+                          child: Center(child: Text('Apply', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500))),
+                        ),
+                      ),
+                    ]),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _qtyBtn(String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 22, height: 22,
+        decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(6)),
+        child: Center(child: Text(label, style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1))),
       ),
+    );
+  }
+
+  Widget _summaryRow(String label, String value, {bool bold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(fontSize: 12, color: bold ? Colors.grey.shade800 : Colors.grey.shade500, fontWeight: bold ? FontWeight.w600 : FontWeight.normal)),
+        Text(value, style: TextStyle(fontSize: bold ? 13 : 12, color: bold ? AppColors.mainColor : Colors.grey.shade800, fontWeight: bold ? FontWeight.bold : FontWeight.w500)),
+      ],
     );
   }
 
@@ -405,6 +541,52 @@ class _MainFoodPageState extends State<MainFoodPage> {
               ),
             );
           }),
+          SizedBox(height: 24),
+          Text(
+            'POPULAR SPOTS',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey.shade400,
+              letterSpacing: 1.5,
+            ),
+          ),
+          SizedBox(height: 12),
+          ..._popularSpots.map((spot) => Container(
+            margin: EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    spot['img']!,
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 40, height: 40,
+                      color: Colors.grey.shade200,
+                      child: Icon(Icons.restaurant, size: 20, color: Colors.grey.shade400),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(spot['name']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade800), overflow: TextOverflow.ellipsis),
+                      Text('${spot['cuisine']} · ${spot['time']}', style: TextStyle(fontSize: 11, color: Colors.grey.shade400)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 14, color: Colors.grey.shade300),
+              ],
+            ),
+          )),
         ],
       ),
     );

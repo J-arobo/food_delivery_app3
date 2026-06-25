@@ -2,6 +2,7 @@
 
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/controllers/cart_controller.dart';
 import 'package:food_delivery_app/controllers/popular_product_controller.dart';
 import 'package:food_delivery_app/controllers/recommeded_product_controller.dart';
 import 'package:food_delivery_app/models/products_model.dart';
@@ -88,16 +89,22 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           );
         }
         final count = ctrl.popularProductList.length;
-        return SizedBox(
-          height: height,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: count,
-            itemBuilder: (_, i) => _buildHeroItem(
-              i,
-              ctrl.popularProductList[i],
-              _currPageValue,
-              count,
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              height: height,
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: count,
+                itemBuilder: (_, i) => _buildHeroItem(
+                  i,
+                  ctrl.popularProductList[i],
+                  _currPageValue,
+                  count,
+                ),
+              ),
             ),
           ),
         );
@@ -110,9 +117,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     return GestureDetector(
       onTap: () => Get.toNamed(RouteHelper.getPopularFood(index, "home")),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
           image: DecorationImage(
             fit: BoxFit.cover,
             image: NetworkImage(
@@ -122,7 +127,6 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         ),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -504,7 +508,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                     height: 34,
                     child: ElevatedButton.icon(
                       onPressed: () =>
-                          Get.toNamed(RouteHelper.getRecommendedFood(index, "home")),
+                          Get.find<CartController>().addItem(product, 1),
                       icon: Icon(Icons.shopping_cart_outlined, size: 13, color: Colors.white),
                       label: Text('Add to Cart',
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
