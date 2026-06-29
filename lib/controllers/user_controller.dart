@@ -9,22 +9,32 @@ class UserController extends GetxController implements GetxService {
   UserController({required this.userRepo});
 
   bool _isLoading = false;
-  //late UserModel _userModel;
+  bool _hasFailed = false;
   UserModel? _userModel;
   bool get isLoading => _isLoading;
+  bool get hasFailed => _hasFailed;
   UserModel? get userModel => _userModel;
 
   Future<ResponseModel> getUserInfo() async {
-    Response response = await userRepo.getUserInfo();
-    late ResponseModel responseModel;
-    if (response.statusCode == 200) {
-      _userModel = UserModel.fromJson(response.body);
-      _isLoading = true;
-      responseModel = ResponseModel(true, "successfully");
-    } else {
-      responseModel = ResponseModel(false, response.statusText!);
+    _hasFailed = false;
+    try {
+      Response response = await userRepo.getUserInfo();
+      late ResponseModel responseModel;
+      if (response.statusCode == 200) {
+        _userModel = UserModel.fromJson(response.body);
+        _isLoading = true;
+        _hasFailed = false;
+        responseModel = ResponseModel(true, "successfully");
+      } else {
+        _hasFailed = true;
+        responseModel = ResponseModel(false, response.statusText ?? "Error");
+      }
+      update();
+      return responseModel;
+    } catch (_) {
+      _hasFailed = true;
+      update();
+      return ResponseModel(false, "Network error");
     }
-    update();
-    return responseModel;
   }
 }

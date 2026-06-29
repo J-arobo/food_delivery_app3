@@ -110,16 +110,16 @@ class DesktopTopNav extends StatelessWidget {
           Spacer(),
           // Nav buttons
           _btn(Icons.home_outlined, Icons.home, 'Home', _is('home'),
-              onTap: () => Get.offAllNamed(RouteHelper.getInitial())),
+              onTap: () => _is('home') ? null : Get.offAllNamed(RouteHelper.getInitial())),
           GetBuilder<CartController>(builder: (cart) =>
             _btn(Icons.shopping_cart_outlined, Icons.shopping_cart, 'Cart', _is('cart'),
                 badge: cart.totalItems,
-                onTap: () => Get.toNamed(RouteHelper.getCartPage())),
+                onTap: () => _is('cart') ? null : Get.toNamed(RouteHelper.getCartPage())),
           ),
           _btn(Icons.favorite_border, Icons.favorite, 'Saved', _is('saved'),
-              onTap: () => Get.toNamed(RouteHelper.getSavedPage())),
+              onTap: () => _is('saved') ? null : Get.toNamed(RouteHelper.getSavedPage())),
           _btn(Icons.person_outline, Icons.person, 'Profile', _is('profile'),
-              onTap: () => Get.toNamed(RouteHelper.getProfilePage())),
+              onTap: () => _is('profile') ? null : Get.toNamed(RouteHelper.getProfilePage())),
         ],
       ),
     );

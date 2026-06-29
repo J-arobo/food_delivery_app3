@@ -445,7 +445,11 @@ class _AddressPickerPageState extends State<AddressPickerPage>
               SizedBox(
                 width: double.infinity, height: 52,
                 child: ElevatedButton.icon(
-                  onPressed: () => Get.back(result: displayAddress),
+                  onPressed: () => Get.back(result: {
+                    'address': displayAddress,
+                    'icon': _labels[_selectedLabel]['emoji']!,
+                    'name': _labels[_selectedLabel]['name']!,
+                  }),
                   icon: Icon(Icons.check, size: 18, color: Colors.white),
                   label: Text('Save Address', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
                   style: ElevatedButton.styleFrom(

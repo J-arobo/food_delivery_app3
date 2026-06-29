@@ -384,17 +384,18 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                 ClipRRect(
                   borderRadius:
                       BorderRadius.vertical(top: Radius.circular(16)),
-                  child: SizedBox(
+                  child: Container(
                     height: 160,
                     width: double.infinity,
+                    color: Colors.grey.shade100,
                     child: Image.network(
                       AppConstants.BASE_URL +
                           AppConstants.UPLOAD_URL +
                           product.img!,
                       fit: BoxFit.cover,
-                      loadingBuilder: (_, child, progress) =>
-                          progress == null ? child : Container(color: Colors.grey.shade100),
-                      errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade100),
+                      errorBuilder: (_, __, ___) => Center(
+                        child: Icon(Icons.restaurant, color: Colors.grey.shade400, size: 32),
+                      ),
                     ),
                   ),
                 ),

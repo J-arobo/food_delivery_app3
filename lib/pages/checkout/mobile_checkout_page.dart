@@ -23,11 +23,22 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
   int _selectedPayment = 0;
   String _orderID = '';
 
-  static const _addresses = [
+  final List<Map<String, String>> _addresses = [
     {'icon': '🏠', 'name': 'Home',        'address': '14 Ngong Road, Karen, Nairobi'},
     {'icon': '🏢', 'name': 'Work',        'address': 'Upper Hill, Nairobi CBD, Nairobi'},
     {'icon': '📍', 'name': "Mum's Place", 'address': '45 Kiambu Road, Kiambu'},
   ];
+
+  final TextEditingController _promoCtrl = TextEditingController();
+  String? _appliedPromo;
+  int _promoDiscount = 0;
+  String? _promoError;
+
+  static const _validCodes = {
+    'SAVE10': 10,
+    'SAVE20': 20,
+    'WELCOME': 50,
+  };
 
   static const _payments = [
     {'icon': 'mpesa',  'name': 'M-Pesa',            'detail': '**** 7821'},
@@ -42,6 +53,107 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
     {'label': 'Out for Delivery',   'done': false, 'live': false},
     {'label': 'Delivered',          'done': false, 'live': false},
   ];
+
+  @override
+  void dispose() {
+    _promoCtrl.dispose();
+    super.dispose();
+  }
+
+  void _applyPromo() {
+    final code = _promoCtrl.text.trim().toUpperCase();
+    if (_validCodes.containsKey(code)) {
+      setState(() {
+        _appliedPromo = code;
+        _promoDiscount = _validCodes[code]!;
+        _promoError = null;
+      });
+    } else {
+      setState(() {
+        _promoError = 'Invalid promo code';
+        _appliedPromo = null;
+        _promoDiscount = 0;
+      });
+    }
+  }
+
+  void _editAddress(int index) {
+    final addrCtrl = TextEditingController(text: _addresses[index]['address']);
+    final nameCtrl = TextEditingController(text: _addresses[index]['name']);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text('Edit Address', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: InputDecoration(
+                labelText: 'Label',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
+            SizedBox(height: 12),
+            TextField(
+              controller: addrCtrl,
+              maxLines: 2,
+              decoration: InputDecoration(
+                labelText: 'Full Address',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: Colors.grey))),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _addresses[index] = {
+                  'icon': _addresses[index]['icon']!,
+                  'name': nameCtrl.text.trim().isEmpty ? _addresses[index]['name']! : nameCtrl.text.trim(),
+                  'address': addrCtrl.text.trim().isEmpty ? _addresses[index]['address']! : addrCtrl.text.trim(),
+                };
+              });
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.mainColor, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            child: Text('Save', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteAddress(int index) {
+    if (_addresses.length <= 1) return;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text('Remove Address?', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text('Remove "${_addresses[index]['name']}" from your addresses?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: Colors.grey))),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _addresses.removeAt(index);
+                if (_selectedAddress >= _addresses.length) _selectedAddress = _addresses.length - 1;
+              });
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            child: Text('Remove', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _nextStep(CartController cart) {
     if (_step == 2) {
@@ -146,7 +258,7 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
 
     final subtotal = cart.totalAmount;
     const delivery = 50;
-    final total = subtotal + delivery;
+    final total = (subtotal + delivery - _promoDiscount).clamp(0, double.infinity).toInt();
 
     return Column(
       children: [
@@ -192,6 +304,18 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
                         Icon(Icons.label_outline, color: AppColors.mainColor, size: 20),
                         SizedBox(width: 8),
                         Text('Promo Code', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                        if (_appliedPromo != null) ...[
+                          SizedBox(width: 8),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.green.shade200)),
+                            child: Row(mainAxisSize: MainAxisSize.min, children: [
+                              Icon(Icons.check_circle, color: Colors.green, size: 12),
+                              SizedBox(width: 4),
+                              Text(_appliedPromo!, style: TextStyle(color: Colors.green.shade700, fontSize: 11, fontWeight: FontWeight.w600)),
+                            ]),
+                          ),
+                        ],
                       ]),
                       SizedBox(height: 12),
                       Row(
@@ -203,22 +327,28 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(12),
+                                border: _promoError != null ? Border.all(color: Colors.redAccent.shade100) : null,
                               ),
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Enter code (try SAVE10)',
-                                  hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
+                              child: Center(
+                                child: TextField(
+                                  controller: _promoCtrl,
+                                  textCapitalization: TextCapitalization.characters,
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter code (try SAVE10)',
+                                    hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.symmetric(vertical: 11),
+                                  ),
+                                  style: TextStyle(fontSize: 13, letterSpacing: 1),
+                                  onSubmitted: (_) => _applyPromo(),
                                 ),
-                                style: TextStyle(fontSize: 13),
                               ),
                             ),
                           ),
                           SizedBox(width: 10),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: _applyPromo,
                             child: Container(
                               height: 44,
                               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -231,6 +361,14 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
                           ),
                         ],
                       ),
+                      if (_promoError != null) ...[
+                        SizedBox(height: 6),
+                        Text(_promoError!, style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                      ],
+                      if (_appliedPromo != null) ...[
+                        SizedBox(height: 6),
+                        Text('🎉 KSh $_promoDiscount saved with $_appliedPromo!', style: TextStyle(color: Colors.green.shade700, fontSize: 12, fontWeight: FontWeight.w500)),
+                      ],
                     ],
                   ),
                 ),
@@ -253,6 +391,10 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
                       _summaryRow('Subtotal', 'KSh $subtotal'),
                       SizedBox(height: 8),
                       _summaryRow('Delivery Fee', 'KSh $delivery'),
+                      if (_promoDiscount > 0) ...[
+                        SizedBox(height: 8),
+                        _summaryRow('Promo ($_appliedPromo)', '− KSh $_promoDiscount', valueColor: Colors.green.shade600),
+                      ],
                       Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider(color: Colors.grey.shade100)),
                       _summaryRow('Total', 'KSh $total', bold: true),
                     ],
@@ -432,6 +574,19 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
               ),
               child: selected ? Icon(Icons.check, size: 14, color: Colors.white) : null,
             ),
+            SizedBox(width: 4),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, size: 18, color: Colors.grey.shade400),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              itemBuilder: (_) => [
+                PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit_outlined, size: 16, color: Colors.grey.shade600), SizedBox(width: 8), Text('Edit')])),
+                PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline, size: 16, color: Colors.redAccent), SizedBox(width: 8), Text('Remove', style: TextStyle(color: Colors.redAccent))])),
+              ],
+              onSelected: (val) {
+                if (val == 'edit') _editAddress(index);
+                if (val == 'delete') _deleteAddress(index);
+              },
+            ),
           ],
         ),
       ),
@@ -440,7 +595,19 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
 
   Widget _addAddressCard() {
     return GestureDetector(
-      onTap: () => Get.to(() => const AddressPickerPage()),
+      onTap: () async {
+        final result = await Get.to(() => const AddressPickerPage());
+        if (result != null && result is Map) {
+          setState(() {
+            _addresses.add({
+              'icon': result['icon']?.toString() ?? '📍',
+              'name': result['name']?.toString() ?? 'New Address',
+              'address': result['address']?.toString() ?? '',
+            });
+            _selectedAddress = _addresses.length - 1;
+          });
+        }
+      },
       child: Container(
         padding: EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -730,12 +897,12 @@ class _MobileCheckoutPageState extends State<MobileCheckoutPage> {
     );
   }
 
-  Widget _summaryRow(String label, String value, {bool bold = false}) {
+  Widget _summaryRow(String label, String value, {bool bold = false, Color? valueColor}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: TextStyle(fontSize: 13, color: bold ? Colors.black87 : Colors.grey.shade600, fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
-        Text(value, style: TextStyle(fontSize: bold ? 15 : 13, color: bold ? Colors.black87 : Colors.grey.shade800, fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+        Text(value, style: TextStyle(fontSize: bold ? 15 : 13, color: valueColor ?? (bold ? Colors.black87 : Colors.grey.shade800), fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
       ],
     );
   }

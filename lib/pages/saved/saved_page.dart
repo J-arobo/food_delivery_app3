@@ -47,24 +47,27 @@ class SavedPage extends StatelessWidget {
 
   Widget _buildEmptyState() {
     return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 90,
-            height: 90,
-            decoration: BoxDecoration(
-                color: Color(0xFFFFF0F0), shape: BoxShape.circle),
-            child: Icon(Icons.favorite_border,
-                color: Colors.redAccent.shade100, size: 40),
-          ),
-          SizedBox(height: 20),
-          Text('No saved items',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
-          Text('Tap the heart on any dish to save it here.',
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
-        ],
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                  color: Color(0xFFFFF0F0), shape: BoxShape.circle),
+              child: Icon(Icons.favorite_border,
+                  color: Colors.redAccent.shade100, size: 40),
+            ),
+            SizedBox(height: 20),
+            Text('No saved items',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            Text('Tap the heart on any dish to save it here.',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+          ],
+        ),
       ),
     );
   }
@@ -90,19 +93,18 @@ class SavedPage extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                child: SizedBox(
+                child: Container(
                   height: imgHeight,
                   width: double.infinity,
+                  color: Colors.grey.shade100,
                   child: Image.network(
                     AppConstants.BASE_URL +
                         AppConstants.UPLOAD_URL +
                         product.img!,
                     fit: BoxFit.cover,
-                    loadingBuilder: (_, child, progress) => progress == null
-                        ? child
-                        : Container(color: Colors.grey.shade100),
-                    errorBuilder: (_, __, ___) =>
-                        Container(height: imgHeight, color: Colors.grey.shade200),
+                    errorBuilder: (_, __, ___) => Center(
+                      child: Icon(Icons.restaurant, color: Colors.grey.shade400, size: 32),
+                    ),
                   ),
                 ),
               ),
@@ -256,7 +258,7 @@ class SavedPage extends StatelessWidget {
         body: SafeArea(
           top: false,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               isDesktop
                   ? const DesktopTopNav(activeTab: 'saved')

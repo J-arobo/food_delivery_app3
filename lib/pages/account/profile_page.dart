@@ -509,20 +509,47 @@ class _ProfilePageState extends State<ProfilePage> {
               _buildSignInPrompt()
             else
               GetBuilder<UserController>(builder: (userCtrl) {
-                if (!userCtrl.isLoading || userCtrl.userModel == null) {
-                  return Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.mainColor)));
+                if (userCtrl.isLoading && userCtrl.userModel != null) {
+                  return isDesktop
+                      ? _buildDesktopLoggedIn(
+                          userCtrl.userModel!.name,
+                          userCtrl.userModel!.email,
+                          userCtrl.userModel!.phone,
+                        )
+                      : _buildLoggedIn(
+                          userCtrl.userModel!.name,
+                          userCtrl.userModel!.email,
+                          userCtrl.userModel!.phone,
+                        );
                 }
-                return isDesktop
-                    ? _buildDesktopLoggedIn(
-                        userCtrl.userModel!.name,
-                        userCtrl.userModel!.email,
-                        userCtrl.userModel!.phone,
-                      )
-                    : _buildLoggedIn(
-                        userCtrl.userModel!.name,
-                        userCtrl.userModel!.email,
-                        userCtrl.userModel!.phone,
-                      );
+                if (userCtrl.hasFailed) {
+                  return Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.cloud_off_outlined, color: Colors.grey.shade400, size: 52),
+                          SizedBox(height: 14),
+                          Text('Could not load profile', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 8),
+                          Text('Check your connection and try again', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                          SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: () => Get.find<UserController>().getUserInfo(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.mainColor,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              padding: EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                            ),
+                            child: Text('Retry', style: TextStyle(color: Colors.white, fontSize: 15)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                return Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.mainColor)));
               }),
           ],
         ),
